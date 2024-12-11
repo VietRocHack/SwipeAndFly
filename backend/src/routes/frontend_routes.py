@@ -1,6 +1,6 @@
 from flask import Blueprint, send_from_directory
 
-frontend_bp = Blueprint("frontend", __name__, static_folder="../../../frontend/dist")
+frontend_bp = Blueprint("frontend", __name__, static_folder="../../../frontend/dist", static_url_path='/')
 
 
 @frontend_bp.route('/')
