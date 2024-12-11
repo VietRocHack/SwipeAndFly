@@ -1,7 +1,52 @@
-from flask import Blueprint, send_from_directory
-from shared import *
+import uuid
+import time
+import json
+import requests
+import os
+import random
+
+
+from flask import Blueprint, request, jsonify
+from src.shared import *
+from openai import OpenAI
+from boto3.dynamodb.conditions import Key
+from src.models.db_models import itinerary_table
 
 itinerary_bp = Blueprint("itinerary", __name__)
+
+
+# Get the first completion of the call
+def openai_api_call(user_prompt, system_prompt):
+    # Generate an itinerary from OpenAI
+    completion = client.chat.completions.create(
+        model = MODEL,
+        response_format={"type": "json_object"},
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+    )
+    return str(completion.choices[0].message.content)
+
+# Get a response from video analysis API
+def video_analysis_call(videos, dev=False):
+    api_json = json.dumps({
+        "video_urls": videos,
+        "num_frames_to_sample": NUM_FRAMES_TO_SAMPLE
+    })
+    url = os.environ["VIDEO_ANALYSIS_DEV_URL"] if dev==True else os.environ["VIDEO_ANALYSIS_PROD_URL"]
+    response = requests.post(
+        url=url,
+        headers={'Content-Type': 'application/json'},
+        data=api_json
+    )
+    return response
+
+
+# OpenAI API support
+# client = OpenAI(api_key=settings.openapi_key)
+client = OpenAI()
+MODEL = "gpt-3.5-turbo"
 
 @itinerary_bp.route('/api/get_itinerary', methods=['GET'])
 def get_itinerary():
