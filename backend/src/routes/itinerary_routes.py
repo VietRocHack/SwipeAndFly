@@ -98,10 +98,10 @@ def generate_itinerary():
             return "Error with video analysis", HTTP_INTERNAL_SERVER_ERROR
         
     # Create system and user prompt
-    system_prompt_file = open("./prompts/system_prompt_vid_analysis.txt", "r")
+    system_prompt_file = open("./src/prompts/prompt_with_vid_analysis.txt", "r")
     system_prompt = system_prompt_file.read()
 
-    user_prompt_file = open("./prompts/prompt_with_vid_analysis.txt", "r")
+    user_prompt_file = open("./src/prompts/system_prompt_vid_analysis.txt", "r")
     user_prompt_template = user_prompt_file.read()
     user_prompt = user_prompt_template.replace("<user_prompt>", args_user_prompt).replace("<video_analysis>", video_summary)
 
