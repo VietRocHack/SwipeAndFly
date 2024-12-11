@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS, cross_origin
 
 from openai import OpenAI
@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
 cors = CORS(app)
 # app.config['CORS_HEADERS'] = 'Content-Type'
 
@@ -74,7 +74,7 @@ Use this call to test connection
 '''
 @app.route("/")
 def index():
-    return jsonify("Hello world"), HTTP_OK
+    return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/get_itinerary', methods=['GET'])
 def get_itinerary():
@@ -148,4 +148,4 @@ def generate_itinerary():
 
 
 if __name__ == "__main__":
-    app.run(port=8080)
+    app.run(port=8080, debug=True)

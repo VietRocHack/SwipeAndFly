@@ -1,4 +1,4 @@
-import { ActivityTag, TripInfo } from "../../utils/types";
+import { ActivityTag, PlaceType, TripInfo } from "../../utils/types";
 import {
   Box,
   Checkbox,
@@ -12,7 +12,9 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+
 import { Dispatch } from "react";
+import GoogleMapsCitySearch from "./GoogleMapsCitySearch/GoogleMapsCitySearch";
 
 interface TripCreatorProps {
   tripInfo: TripInfo;
@@ -23,13 +25,10 @@ export default function TripCreator({
   tripInfo,
   setTripInfo,
 }: TripCreatorProps) {
-  console.log(tripInfo);
-  console.log(setTripInfo);
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleLocationChange = (event: any) => {
+  const handleLocationChange = (location: PlaceType | null) => {
     setTripInfo((prev) => {
-      return { ...prev, location: event.target.value };
+      return { ...prev, location: location };
     });
   };
 
@@ -90,17 +89,12 @@ export default function TripCreator({
       >
         Where are your next destination?
       </Typography>
+
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6}>
-          <TextField
-            id="location"
-            placeholder="Ha Noi, Vietnam"
-            value={tripInfo.location}
-            label="Location"
-            variant="outlined"
-            fullWidth
-            onChange={handleLocationChange}
-            required
+          <GoogleMapsCitySearch
+            handleLocationChange={handleLocationChange}
+            location={tripInfo.location}
           />
         </Grid>
         <Grid item xs={12} sm={3}>
@@ -144,15 +138,24 @@ export default function TripCreator({
                 </Box>
               )}
               label="Activity"
+              MenuProps={{
+                PaperProps: {
+                  style: {
+                    maxHeight: "30%", // Adjust the max height of the dropdown
+                  },
+                },
+              }}
             >
-              {Object.values(ActivityTag).map((activity) => (
-                <MenuItem key={activity} value={activity}>
-                  <Checkbox
-                    checked={tripInfo.activityTags.includes(activity)}
-                  />
-                  <ListItemText primary={activity} />
-                </MenuItem>
-              ))}
+              {Object.values(ActivityTag)
+                .sort()
+                .map((activity) => (
+                  <MenuItem key={activity} value={activity}>
+                    <Checkbox
+                      checked={tripInfo.activityTags.includes(activity)}
+                    />
+                    <ListItemText primary={activity} />
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
         </Grid>

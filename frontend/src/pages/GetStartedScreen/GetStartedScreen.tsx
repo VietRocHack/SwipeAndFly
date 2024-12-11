@@ -5,8 +5,10 @@ import { Button, Typography } from "@mui/material";
 import ImageBackground from "../../components/Background/Background";
 import Catchphrase from "../HomeScreen/Catchphrase";
 import bgImage from "../../assets/wallpaper.jpg";
+import { useNavigate } from "react-router-dom";
 
 const GetStartedScreen: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <div className="main-content">
       <ImageBackground backgroundUrl={bgImage} opacity={0.3} />
@@ -19,7 +21,7 @@ const GetStartedScreen: React.FC = () => {
           variant="contained"
           color="primary"
           onClick={() => {
-            document.location.href = "./create-trip";
+            navigate("/create-trip")
           }}
         >
           Get started

@@ -1,0 +1,19 @@
+{
+  "projects": {
+    "prod": "tripplanner-b05c6"
+  },
+  "targets": {
+    "tripplanner-b05c6": {
+      "hosting": {
+        "dev": [
+          "tripplanner-dev"
+        ],
+        "prod": [
+          "tripplanner-b05c6"
+        ]
+      }
+    }
+  },
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
+}
