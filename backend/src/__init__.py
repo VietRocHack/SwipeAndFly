@@ -8,7 +8,7 @@ def create_app():
     app = Flask(__name__)
 
     # Register blueprints
-    from routes import register_routes
+    from src.routes import register_routes
     register_routes(app)
 
     return app

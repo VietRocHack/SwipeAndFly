@@ -1,7 +1,7 @@
 import time
 from flask import Blueprint
 
-status_bp = Blueprint("frontend", __name__)
+status_bp = Blueprint("status", __name__)
 
 @status_bp.route("/api/")
 def index():
