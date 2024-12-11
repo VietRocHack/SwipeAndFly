@@ -76,7 +76,12 @@ Use this call to test connection
 def index():
     return send_from_directory(app.static_folder, 'index.html')
 
-@app.route('/get_itinerary', methods=['GET'])
+@app.route("/api/")
+def api_status():
+    return f"Backend is alive and well as of {time.ctime()}", 200
+
+
+@app.route('/api/get_itinerary', methods=['GET'])
 def get_itinerary():
     # Process params
     id = request.args.get('uuid')
@@ -94,7 +99,7 @@ def get_itinerary():
 
     return response['Items'][0], HTTP_OK
 
-@app.route("/generate_itinerary", methods=['POST'])
+@app.route("/api/generate_itinerary", methods=['POST'])
 def generate_itinerary():
     # Process arguments
     args_user_prompt = request.args.get("prompt")
