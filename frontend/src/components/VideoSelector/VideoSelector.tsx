@@ -20,9 +20,6 @@ import { Send } from "@mui/icons-material"; // Import icon for button
 import VideoDisplay from "./VideoDisplay/VideoDisplay";
 import { darkTheme } from "../../utils/themes";
 
-const VIDEO_ANALYSIS_API_URL: string = import.meta.env
-  .VITE_VIDEO_ANALYSIS_API_URL;
-
 interface VideoSelectorProps {
   location: string;
   videos: Map<string, TikTokVideoObject>;
@@ -98,7 +95,7 @@ export default function VideoSelector({
   const suggestVideos = async () => {
     try {
       const response = await fetch(
-        `${VIDEO_ANALYSIS_API_URL}/suggest_videos?` +
+        `api/video_analysis/suggest_videos?` +
           `&location=${encodeURIComponent(location)}` +
           `&num_videos=${5}`,
         {

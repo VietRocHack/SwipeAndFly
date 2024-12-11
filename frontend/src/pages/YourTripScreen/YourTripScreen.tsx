@@ -12,7 +12,6 @@ import LoadingComponent from "../../components/Loading/LoadingComponent";
 
 // TRUE IN PRODUCTION!!!
 const USE_API = true;
-const ITINERARY_API_URL = import.meta.env.VITE_ITINERARY_API_URL;
 
 interface FetchResult {
   itinerary: string;
@@ -100,7 +99,7 @@ export default function YourTripScreen() {
       try {
         if (USE_API) {
           const response = await axios.get<FetchResult>(
-            `${ITINERARY_API_URL}/get_itinerary?uuid=${uuid}&fields=itinerary,prompt`
+            `api/itinerary/get_itinerary?uuid=${uuid}&fields=itinerary,prompt`
             // `http://127.0.0.1:8080/get_itinerary?uuid=${uuid}&fields=itinerary`
             // `http://127.0.0.1:8080`
           );

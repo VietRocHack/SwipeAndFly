@@ -101,7 +101,7 @@ export default function FormSubmitGenerate({
   const fetchData = async () => {
     try {
       const response = await fetch(
-        `https://spvzn3tnm0.execute-api.us-east-1.amazonaws.com/generate_itinerary?` +
+        `/api/itinerary/generate_itinerary?` +
           `&prompt=${encodeURIComponent(preparePrompt(tripInfo))}` +
           `&location=${encodeURIComponent(tripInfo.location!.description)}` +
           `&startTime=${encodeURIComponent(tripInfo.startTime)}` +
