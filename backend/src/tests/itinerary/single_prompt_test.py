@@ -14,7 +14,7 @@ user_prompt = user_prompt_file.read()
 
 
 completion = client.chat.completions.create(
-  model="gpt-3.5-turbo",
+  model="gpt-4o-mini",
   response_format={"type": "json_object"},
   messages=[
     {"role": "system", "content": system_prompt},

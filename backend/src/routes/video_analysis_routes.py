@@ -1,7 +1,7 @@
 import time
 from flask import Blueprint, send_from_directory, jsonify, request
 import asyncio
-from src.function.video_analysis import analyze_videos
+from src.shared.video_analysis import analyze_videos
 
 
 video_analysis_bp = Blueprint("video_analysis", __name__)

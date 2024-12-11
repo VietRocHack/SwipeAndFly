@@ -11,9 +11,14 @@ from src.shared import *
 from openai import OpenAI
 from boto3.dynamodb.conditions import Key
 from src.models.db_models import itinerary_table
+from src.shared.video_analysis import analyze_videos
 
 itinerary_bp = Blueprint("itinerary", __name__)
 
+# OpenAI API support
+# client = OpenAI(api_key=settings.openapi_key)
+client = OpenAI()
+MODEL = "gpt-4o-mini"
 
 # Get the first completion of the call
 def openai_api_call(user_prompt, system_prompt):
@@ -42,13 +47,7 @@ def video_analysis_call(videos, dev=False):
     )
     return response
 
-
-# OpenAI API support
-# client = OpenAI(api_key=settings.openapi_key)
-client = OpenAI()
-MODEL = "gpt-3.5-turbo"
-
-@itinerary_bp.route('/api/get_itinerary', methods=['GET'])
+@itinerary_bp.route('/api/itinerary/get_itinerary', methods=['GET'])
 def get_itinerary():
     # Process params
     id = request.args.get('uuid')
@@ -66,7 +65,7 @@ def get_itinerary():
 
     return response['Items'][0], HTTP_OK
 
-@itinerary_bp.route("/api/generate_itinerary", methods=['POST'])
+@itinerary_bp.route("/api/itinerary/generate_itinerary", methods=['POST'])
 def generate_itinerary():
     # Process arguments
     args_user_prompt = request.args.get("prompt")
@@ -81,13 +80,21 @@ def generate_itinerary():
     # Video processing 
     video_summary = "The user have not specified any videos."
     if len(videos) != 0:
-        response = video_analysis_call(videos, dev=False)
-        print("CALL OK")
-        if response.status_code == HTTP_OK:
-            print(response.json())
-            video_summary = str(response.json()['video_analysis'])
+        # response = video_analysis_call(videos, dev=False)
+        # print("CALL OK")
+        # if response.status_code == HTTP_OK:
+        #     print(response.json())
+        #     video_summary = str(response.json()['video_analysis'])
+        #     print(video_summary)
+        # else:
+        #     return "Error with video analysis", HTTP_INTERNAL_SERVER_ERROR
+        
+        try:
+            print("Analyzing videos")
+            video_summary = analyze_videos(videos, NUM_FRAMES_TO_SAMPLE, metadata_fields=["title"])
             print(video_summary)
-        else:
+            video_summary = str(video_summary)
+        except:
             return "Error with video analysis", HTTP_INTERNAL_SERVER_ERROR
         
     # Create system and user prompt
