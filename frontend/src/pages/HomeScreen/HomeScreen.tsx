@@ -26,7 +26,7 @@ const HomeScreen: React.FC = () => {
 
       try {
         const response = await fetch(
-          `https://spvzn3tnm0.execute-api.us-east-1.amazonaws.com/generate_itinerary?prompt=${newTextInput}`,
+          `/api/generate_itinerary?prompt=${newTextInput}`,
           {
             method: "GET",
           }

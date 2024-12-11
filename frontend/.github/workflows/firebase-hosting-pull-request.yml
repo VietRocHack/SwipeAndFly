@@ -3,6 +3,12 @@
 
 name: Deploy to Firebase Hosting on PR
 on: pull_request
+
+env:
+  VITE_MAPS_API_KEY: ${{secrets.MAPS_API_KEY_DEV}}
+  VITE_VIDEO_ANALYSIS_API_URL: ${{secrets.VIDEO_ANALYSIS_API_URL_DEV}}
+  VITE_ITINERARY_API_URL: ${{secrets.ITINERARY_API_URL_DEV}}
+
 permissions:
   checks: write
   contents: read
@@ -13,9 +19,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set Firebase target
+        id: set-target
+        run: |
+          if [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
+            echo "TARGET=prod" >> $GITHUB_ENV
+          elif [[ "${{ github.event.pull_request.base.ref }}" == "dev" ]]; then
+            echo "TARGET=dev" >> $GITHUB_ENV
+          fi
+
       - run: npm ci && npm run build
+
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
+          target: ${{ env.TARGET }}
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_TRIPPLANNER_B05C6 }}
           projectId: tripplanner-b05c6

@@ -99,11 +99,11 @@ export default function YourTripScreen() {
       try {
         if (USE_API) {
           const response = await axios.get<FetchResult>(
-            `https://sj503gxhq9.execute-api.us-east-1.amazonaws.com/get_itinerary?uuid=${uuid}&fields=itinerary,prompt`
+            `api/itinerary/get_itinerary?uuid=${uuid}&fields=itinerary,prompt`
             // `http://127.0.0.1:8080/get_itinerary?uuid=${uuid}&fields=itinerary`
             // `http://127.0.0.1:8080`
           );
-          
+
           // await setTimeout()
           setData(response.data);
         }
@@ -122,7 +122,7 @@ export default function YourTripScreen() {
   // TODO: add loading screen and error screen
   if (loading) {
     return (
-      <Box sx={{alignSelf: "center", pt: "35vh"}}>
+      <Box sx={{ alignSelf: "center", pt: "35vh" }}>
         <LoadingComponent caption="Getting your Trip Information..." />
       </Box>
     );

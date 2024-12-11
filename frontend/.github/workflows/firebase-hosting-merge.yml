@@ -3,14 +3,41 @@ on:
   push:
     branches:
       - main
+      - dev
+
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set Firebase target
+        id: set-target
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "TARGET=prod" >> $GITHUB_ENV
+            echo "MAPS_API_KEY=${{ secrets.MAPS_API_KEY_PROD }}" >> $GITHUB_ENV
+            echo "VIDEO_ANALYSIS_API_URL=${{ secrets.VIDEO_ANALYSIS_API_URL_PROD }}" >> $GITHUB_ENV
+            echo "ITINERARY_API_URL=${{ secrets.ITINERARY_API_URL_PROD }}" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            echo "TARGET=dev" >> $GITHUB_ENV
+            echo "MAPS_API_KEY=${{ secrets.MAPS_API_KEY_DEV }}" >> $GITHUB_ENV
+            echo "VIDEO_ANALYSIS_API_URL=${{ secrets.VIDEO_ANALYSIS_API_URL_DEV }}" >> $GITHUB_ENV
+            echo "ITINERARY_API_URL=${{ secrets.ITINERARY_API_URL_DEV }}" >> $GITHUB_ENV
+          else
+            echo "Unsupported base branch"
+            exit 1
+          fi
+
       - run: npm ci && npm run build
+        env:
+          VITE_MAPS_API_KEY: ${{ env.MAPS_API_KEY }}
+          VITE_VIDEO_ANALYSIS_API_URL: ${{ env.VIDEO_ANALYSIS_API_URL }}
+          VITE_ITINERARY_API_URL: ${{ env.ITINERARY_API_URL }}
+
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
+          target: ${{ env.TARGET }}
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_TRIPPLANNER_B05C6 }}
           channelId: live

@@ -31,7 +31,7 @@ export enum ActivityTag {
 }
 
 export interface TripInfo {
-  location: string;
+  location: PlaceType | null;
   startTime: string;
   endTime: string;
   activityTags: ActivityTag[];
@@ -58,4 +58,19 @@ export interface Itinerary{
 export interface FormRequirements {
   condition: (...args: unknown[]) => boolean;
   errorMsg: string;
+}
+
+export interface MainTextMatchedSubstrings {
+  offset: number;
+  length: number;
+}
+export interface StructuredFormatting {
+  main_text: string;
+  secondary_text: string;
+  main_text_matched_substrings?: readonly MainTextMatchedSubstrings[];
+}
+export interface PlaceType {
+  terms: unknown;
+  description: string;
+  structured_formatting: StructuredFormatting;
 }

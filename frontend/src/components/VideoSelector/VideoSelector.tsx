@@ -3,18 +3,25 @@ import {
   CircularProgress,
   Grid,
   IconButton,
+  Link,
   Paper,
   TextField,
   Typography,
   useMediaQuery,
 } from "@mui/material";
 import { ChangeEvent, Dispatch, FormEvent, useEffect, useState } from "react";
-import { checkTikTokUrl, cleanTikTokVideoURL } from "../../utils/utils";
+import {
+  checkTikTokUrl,
+  cleanTikTokVideoURL,
+  getTikTokSearchURLByLocation,
+} from "../../utils/utils";
 import { TikTokVideoObject } from "../../utils/types";
 import { Send } from "@mui/icons-material"; // Import icon for button
 import VideoDisplay from "./VideoDisplay/VideoDisplay";
 import { darkTheme } from "../../utils/themes";
+
 interface VideoSelectorProps {
+  location: string;
   videos: Map<string, TikTokVideoObject>;
   setVideos: Dispatch<React.SetStateAction<Map<string, TikTokVideoObject>>>;
 }
@@ -23,6 +30,7 @@ interface VideoSelectorProps {
  * Return a Stepper with multiple different ReactNodes as its steps
  */
 export default function VideoSelector({
+  location,
   videos,
   setVideos,
 }: VideoSelectorProps) {
@@ -38,6 +46,7 @@ export default function VideoSelector({
   const [urlErrorMsg, setUrlErrorMsg] = useState<string>("");
   const [justAddedVid, setJustAddedVid] = useState<string>("");
   const [shake, setShake] = useState<boolean>(false);
+  const [suggestedVids, setSuggestedVids] = useState<TikTokVideoObject[]>([]);
 
   const handleShake = () => {
     setShake(true);
@@ -57,6 +66,21 @@ export default function VideoSelector({
       });
       return newVideos;
     });
+
+    suggestVideos().then((results: [string] | null) => {
+      console.log(results);
+      if (!results) return;
+      const newSuggested: TikTokVideoObject[] = [];
+      results.forEach((resultUrl) => {
+        const vidObj = cleanTikTokVideoURL(resultUrl);
+        if (vidObj) {
+          newSuggested.push(vidObj);
+        }
+      });
+      console.log(newSuggested);
+      setSuggestedVids(newSuggested);
+    });
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -67,6 +91,35 @@ export default function VideoSelector({
   useEffect(() => {
     localStorage.setItem("vidIds", JSON.stringify([...vidIds]));
   }, [vidIds]);
+
+  const suggestVideos = async () => {
+    try {
+      const response = await fetch(
+        `api/video_analysis/suggest_videos?` +
+          `&location=${encodeURIComponent(location)}` +
+          `&num_videos=${5}`,
+        {
+          method: "GET",
+        }
+      );
+      console.log(response);
+      if (response.ok) {
+        const results = await response.json();
+        return results.result;
+      } else {
+        console.error(
+          "Failed to fetch data. Response status:",
+          response.status
+        );
+        console.log("An error has happened, retrying...");
+        return null;
+      }
+    } catch (error) {
+      console.log("ERROR: " + error);
+      console.log("An error has happened, retrying...");
+      return null;
+    }
+  };
 
   const handleVid = (event: ChangeEvent<HTMLInputElement>) => {
     setVid(event.target.value);
@@ -95,7 +148,7 @@ export default function VideoSelector({
     const extractedVid = cleanTikTokVideoURL(input);
     console.log("cleaning vid done");
 
-    if (typeof extractedVid === "string") {
+    if (!extractedVid) {
       setAddingVid(false);
       alertError("The given URL is not valid");
     } else if (vidIds.has(extractedVid.id)) {
@@ -149,6 +202,10 @@ export default function VideoSelector({
         newVideos.set(video.id, video);
         return newVideos;
       });
+    }
+
+    if (!listVid.includes(video)) {
+      listVid.push(video);
     }
   };
 
@@ -239,6 +296,36 @@ export default function VideoSelector({
           marginTop: 3,
           width: "100%",
           // background: "#131314",
+          marginBottom: 8,
+          backgroundColor: "rgba(19,19,20, 0.2) !important",
+        }}
+        videosPerRow={isMobile ? 2 : 5}
+        minimalSettings
+      />
+
+      <Typography variant="h5" fontWeight={"bold"} gutterBottom>
+        Get some inspiration here
+      </Typography>
+
+      <Typography variant="body1" sx={{ marginBottom: 4 }}>
+        Choose from the list below or go find some on{" "}
+        <Link href={getTikTokSearchURLByLocation(location)} target="_blank">
+          TikTok
+        </Link>
+        .
+      </Typography>
+
+      <VideoDisplay
+        listVid={suggestedVids}
+        videos={videos}
+        handleChangeVid={handleChangeVid}
+        handleDeleteVid={handleDeleteVid}
+        orientation="horizontal"
+        sx={{
+          padding: 3,
+          borderRadius: 2,
+          marginTop: 3,
+          width: "100%",
           marginBottom: 8,
           backgroundColor: "rgba(19,19,20, 0.2) !important",
         }}

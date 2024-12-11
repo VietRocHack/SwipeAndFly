@@ -5,11 +5,16 @@ import { TikTokVideoObject } from "../../utils/types";
 import VideoSelector from "../../components/VideoSelector/VideoSelector";
 
 interface FormPartTwoProps {
+  location: string;
   videos: Map<string, TikTokVideoObject>;
   setVideos: Dispatch<React.SetStateAction<Map<string, TikTokVideoObject>>>;
 }
 
-export default function FormPartTwo({ videos, setVideos }: FormPartTwoProps) {
+export default function FormPartTwo({
+  location,
+  videos,
+  setVideos,
+}: FormPartTwoProps) {
   return (
     <Box
       sx={{
@@ -19,7 +24,11 @@ export default function FormPartTwo({ videos, setVideos }: FormPartTwoProps) {
         width: "100%",
       }}
     >
-      <VideoSelector videos={videos} setVideos={setVideos} />
+      <VideoSelector
+        location={location}
+        videos={videos}
+        setVideos={setVideos}
+      />
     </Box>
   );
 }

@@ -31,7 +31,9 @@ export default function TripSummary({ videos, tripInfo }: TripSummaryProps) {
           <Grid item xs={12}>
             <Typography variant="h6">I'll be going to</Typography>
             <Typography variant="h4" fontWeight="bold">
-              {tripInfo.location ? tripInfo.location : "Anywhere, lol"}
+              {tripInfo.location
+                ? tripInfo.location.description
+                : "Anywhere, lol"}
             </Typography>
           </Grid>
           <Grid item xs={12}>

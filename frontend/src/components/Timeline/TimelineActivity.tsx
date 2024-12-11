@@ -28,7 +28,7 @@ export default function TimelineActivity({
 }: TimelineActivityProps) {
   const displayTiktok = (url: string) => {
     const video = cleanTikTokVideoURL(url);
-    if (typeof video === "string") {
+    if (!video) {
       return <Typography>Broken URL link</Typography>;
     } else {
       return (
