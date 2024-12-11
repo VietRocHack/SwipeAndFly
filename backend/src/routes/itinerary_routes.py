@@ -1,42 +1,19 @@
-from flask import Flask, jsonify, request, send_from_directory
-from flask_cors import CORS, cross_origin
+import uuid
+import time
+import json
+import requests
+import os
+import random
 
+
+from flask import Blueprint, request, jsonify
+from src.shared import *
 from openai import OpenAI
+from boto3.dynamodb.conditions import Key
+from src.models.db_models import itinerary_table
 
-import boto3
-from boto3.dynamodb.conditions import Key, Attr
+itinerary_bp = Blueprint("itinerary", __name__)
 
-import uuid, time, json, requests, os, random
-from dotenv import load_dotenv
-
-load_dotenv()
-
-app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
-cors = CORS(app)
-# app.config['CORS_HEADERS'] = 'Content-Type'
-
-# OpenAI API support
-# client = OpenAI(api_key=settings.openapi_key)
-client = OpenAI()
-MODEL = "gpt-3.5-turbo"
-
-# AWS DynamoDB support
-dynamodb = boto3.resource('dynamodb', region_name="us-east-1")
-itinerary_table = dynamodb.Table('Itineraries')
-
-# HTTP codes
-HTTP_OK = 200
-HTTP_CREATED = 201
-HTTP_BAD_REQUEST = 400
-HTTP_INTERNAL_SERVER_ERROR = 500,
-HTTP_NOT_IMPLEMENTED = 501
-
-# Video analysis metadata
-NUM_FRAMES_TO_SAMPLE = 3
-
-'''
-API calls setups
-'''
 
 # Get the first completion of the call
 def openai_api_call(user_prompt, system_prompt):
@@ -65,23 +42,13 @@ def video_analysis_call(videos, dev=False):
     )
     return response
 
-'''
-ROUTES
-'''
 
-'''
-Use this call to test connection
-'''
-@app.route("/")
-def index():
-    return send_from_directory(app.static_folder, 'index.html')
+# OpenAI API support
+# client = OpenAI(api_key=settings.openapi_key)
+client = OpenAI()
+MODEL = "gpt-3.5-turbo"
 
-@app.route("/api/")
-def api_status():
-    return f"Backend is alive and well as of {time.ctime()}", 200
-
-
-@app.route('/api/get_itinerary', methods=['GET'])
+@itinerary_bp.route('/api/get_itinerary', methods=['GET'])
 def get_itinerary():
     # Process params
     id = request.args.get('uuid')
@@ -99,7 +66,7 @@ def get_itinerary():
 
     return response['Items'][0], HTTP_OK
 
-@app.route("/api/generate_itinerary", methods=['POST'])
+@itinerary_bp.route("/api/generate_itinerary", methods=['POST'])
 def generate_itinerary():
     # Process arguments
     args_user_prompt = request.args.get("prompt")
@@ -150,7 +117,3 @@ def generate_itinerary():
     return itinerary_uuid, HTTP_CREATED
 
 
-
-
-if __name__ == "__main__":
-    app.run(port=8080, debug=True)
