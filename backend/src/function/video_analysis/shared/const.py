@@ -22,7 +22,7 @@ version_configs = {
 	"groq": {
 		"base_url": "https://api.groq.com/openai/v1/chat/completions",
 		"text_model": "llama-3.3-70b-versatile",
-		"text_model": "llama-3.2-11b-vision-preview",
+		"vision_model": "llama-3.2-11b-vision-preview",
 		"api_key": os.environ.get("GROQ_API_KEY"),
         "analysis_template": groq_analysis_template
 	}

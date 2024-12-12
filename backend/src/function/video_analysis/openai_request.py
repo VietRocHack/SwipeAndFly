@@ -40,7 +40,7 @@ async def analyze_images(
 			"type": "text",
 			"text": """These images are from a TikTok video. """
 			"""Analyze this video using simple and to-the-point vocab using this json format: """
-			f"""{ config.analysis_template }"""
+			f"""{ config["analysis_template"] }"""
 			f"""Included is a metadata of the video for better analysis: {json.dumps(metadata)} """
 		})
 
@@ -58,12 +58,12 @@ async def analyze_images(
 	# Define headers
 	headers = {
 		"Content-Type": "application/json",
-		"Authorization": f"Bearer { config.api_key }"
+		"Authorization": f"Bearer { config['api_key'] }"
 	}
 
 	# Define payload
 	payload = {
-		"model": config.model,
+		"model": config["vision_model"],
 		"response_format": {
       		"type": "json_object"
         },
@@ -75,7 +75,7 @@ async def analyze_images(
 		],
 		"max_tokens": 200
 	}
-	return await _send_request(session, payload, headers)
+	return await _send_request(session, payload, headers, config)
 
 async def analyze_transcript(
 		session: ClientSession,
@@ -100,7 +100,7 @@ async def analyze_transcript(
 			"type": "text",
 			"text": """This is a transcript from a TikTok video. """
 			"""Analyze this video in details using simple and to-the-point vocab using this json format: """
-			f"""{ config.analysis_template }"""
+			f"""{ config["analysis_template"] }"""
 			f"""Included is a metadata of the video for more things to analyze: {json.dumps(metadata)} """
 			f"""Transcript: { transcript }"""
 		})
@@ -108,12 +108,12 @@ async def analyze_transcript(
 	# Define headers
 	headers = {
 		"Content-Type": "application/json",
-		"Authorization": f"Bearer { config.api_key }"
+		"Authorization": f"Bearer { config['api_key'] }"
 	}
 
 	# Define payload
 	payload = {
-		"model": "gpt-4o-mini",
+		"model": config["text_model"],
   	"response_format": {"type": "json_object"},
 		"messages": [
 			{
@@ -138,7 +138,7 @@ async def _send_request(
 	try:
 		payload_bytes = io.BytesIO(json.dumps(payload).encode('utf-8'))
 		async with session.post(
-			url=config.base_url,
+			url=config["base_url"],
 			data=payload_bytes,
 			headers=headers
 		) as response:
@@ -147,8 +147,10 @@ async def _send_request(
 			logger.info(f"Reponse received from LLM Provider with code {response.status}: {json.dumps(response_json)}")
 
 			analysis_raw = response_json["choices"][0]["message"]["content"]
+			print(analysis_raw)
 
 			analysis_json = json.loads(analysis_raw)
+			print(analysis_json)
 			return analysis_json
 
 	except ClientError as e:

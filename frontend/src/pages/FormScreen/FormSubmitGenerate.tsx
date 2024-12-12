@@ -110,7 +110,8 @@ export default function FormSubmitGenerate({
             tripInfo.activityTags.join(",")
           )}` +
           `&comments=${encodeURIComponent(tripInfo.comments)}` +
-          `&video_urls=${prepareTikTokUrls(videos)}`,
+          `&video_urls=${prepareTikTokUrls(videos)}`+
+          `&version=groq`,
         {
           method: "POST",
         }
