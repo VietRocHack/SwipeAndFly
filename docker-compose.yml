@@ -7,3 +7,5 @@ services:
     env_file:
       - ./frontend/.env
       - ./backend/.env
+    volumes:
+    - ./backend/.aws:/root/.aws 
