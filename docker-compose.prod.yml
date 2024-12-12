@@ -1,6 +1,6 @@
 services:
   server:
-    name: swipeandfly-server
+    container_name: swipeandfly-server
     build: 
       context: .
       args:  
