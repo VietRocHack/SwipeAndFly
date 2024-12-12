@@ -46,4 +46,4 @@ EXPOSE 5000/tcp
 COPY --from=build /app/frontend/dist/ ./static/
 
 # Use ENTRYPOINT with Gunicorn settings inline
-ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "--access-logfile", "-", "--error-logfile", "-", "--log-level", "info", "src:create_app()"]
+ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--access-logfile", "-", "--error-logfile", "-", "--log-level", "info", "src:create_app()"]
