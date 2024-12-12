@@ -5,8 +5,6 @@ services:
       args:  
         VITE_MAPS_API_KEY: ${VITE_MAPS_API_KEY}
     restart: on-failure:3
-    ports:
-      - "0.0.0.0:5000:5000/tcp"
     volumes:
     - ${AWS_CREDENTIALS_PATH}:/root/.aws 
     environment:
