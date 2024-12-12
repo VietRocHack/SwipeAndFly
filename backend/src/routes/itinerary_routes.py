@@ -72,6 +72,10 @@ def get_itinerary():
 def generate_itinerary():
     # Process arguments
     args_user_prompt = request.args.get("prompt")
+    rec_version = request.args.get("version", "openai")
+
+    print(f"Currently recommending with version {rec_version}")
+    
     if args_user_prompt == "":
         return jsonify("Error: No prompt found"), HTTP_BAD_REQUEST
     videos = request.args.get('video_urls').split(',')
@@ -82,14 +86,19 @@ def generate_itinerary():
 
     # Video processing 
     video_summary = "The user have not specified any videos."
-    # if len(videos) != 0:
-    #     try:
-    #         print("Analyzing videos")
-    #         video_summary = analyze_videos(videos, NUM_FRAMES_TO_SAMPLE, metadata_fields=["title"])
-    #         print(video_summary)
-    #         video_summary = str(video_summary)
-    #     except:
-    #         return "Error with video analysis", HTTP_INTERNAL_SERVER_ERROR
+    if len(videos) != 0:
+        try:
+            print("Analyzing videos")
+            video_summary = analyze_videos(
+                videos,
+                NUM_FRAMES_TO_SAMPLE,
+                metadata_fields=["title"],
+                version=rec_version
+            )
+            print(video_summary)
+            video_summary = str(video_summary)
+        except:
+            return "Error with video analysis", HTTP_INTERNAL_SERVER_ERROR
     
     # Create system and user prompt
     system_prompt_file = open("./src/prompts/system_prompt_vid_analysis.txt", "r")

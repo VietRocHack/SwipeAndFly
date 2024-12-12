@@ -5,9 +5,9 @@ import json
 import io
 import time
 
-from backend.src.function.video_analysis.shared import utils
+from src.function.video_analysis.shared import utils
 from aiohttp import ClientSession, ClientError
-from backend.src.function.video_analysis.shared.const import version_configs
+from src.function.video_analysis.shared.const import version_configs
 
 logger = utils.setup_logger(__name__, f"./openai_request_logger_{int(time.time())}.log")
 
