@@ -7,10 +7,17 @@ import io
 from src.function.video_analysis import utils
 import time
 from aiohttp import ClientSession, ClientError
+from openai import OpenAI
 
 logger = utils.setup_logger(__name__, f"./openai_request_logger_{int(time.time())}.log")
 
 load_dotenv()
+
+client = OpenAI(
+    base_url="https://api.groq.com/openai/v1",
+    api_key=os.environ.get("GROQ_API_KEY")
+)
+VISON_MODEL = "llama-3.2-11b-vision-preview"
 
 print(os.curdir)
 
@@ -59,20 +66,35 @@ async def analyze_images(
 				}
 			})
 
-	payload = {
-		"model": "llama-3.3-70b-versatile",
-  	"response_format": {"type": "json_object"},
-		"messages": [
+	# payload = {
+	# 	"model": "llama-3.2-11b-vision-preview",
+  	# "response_format": {"type": "json_object"},
+	# 	"messages": [
+	# 		{
+	# 			"role": "user",
+	# 			"content": content
+	# 		}
+	# 	],
+	# 	"max_tokens": 200
+	# }
+	# return await _send_request(session, payload, headers)
+
+	print("Completing message")
+
+	output = client.chat.completions.create(
+		messages=[
 			{
 				"role": "user",
 				"content": content
 			}
 		],
-		"max_tokens": 200
-	}
+		model=VISON_MODEL,
+	)
 
-	return await _send_request(session, payload, headers)
-
+	analysis_raw = output.choices[0].message.content
+	print(analysis_raw)
+	analysis_json = json.loads(analysis_raw)
+	return analysis_json
 
 async def analyze_transcript(
 		session: ClientSession,

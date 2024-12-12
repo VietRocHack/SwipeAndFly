@@ -90,7 +90,8 @@ def generate_itinerary():
     #         video_summary = str(video_summary)
     #     except:
     #         return "Error with video analysis", HTTP_INTERNAL_SERVER_ERROR
-        
+    
+    print("finished analyzing")
     # Create system and user prompt
     system_prompt_file = open("./src/prompts/system_prompt_vid_analysis.txt", "r")
     system_prompt = system_prompt_file.read()

@@ -67,6 +67,8 @@ async def analyze_from_urls(
 				)
 			)
 		results = await asyncio.gather(*tasks)
+        
+		print("Returning result")
 
 		# verify overall results and return whatever we can even if things fail
 		overall_result = True

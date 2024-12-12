@@ -10,4 +10,6 @@ def analyze_videos(video_urls, num_frames_to_sample=5, metadata_fields=["title"]
 		metadata_fields=metadata_fields
 	))
 
+    print("hello")
+    
     return content
