@@ -1,0 +1,29 @@
+services:
+  server:
+    build: 
+      context: .
+      args:  
+        VITE_MAPS_API_KEY: ${VITE_MAPS_API_KEY}
+    restart: on-failure:3
+    ports:
+      - "0.0.0.0:5000:5000/tcp"
+    volumes:
+    - ${AWS_CREDENTIALS_PATH}:/root/.aws 
+    environment:
+      VITE_MAPS_API_KEY: ${VITE_MAPS_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+  nginx:
+    container_name: nginx
+    image: jonasal/nginx-certbot
+    restart: always
+    environment:
+      - CERTBOT_EMAIL=hochivuong2002@gmail.com
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - nginx_secrets:/etc/letsencrypt
+      - ./user_conf.d:/etc/nginx/user_conf.d
+    depends_on:
+      - server
