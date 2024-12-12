@@ -91,7 +91,6 @@ def generate_itinerary():
     #     except:
     #         return "Error with video analysis", HTTP_INTERNAL_SERVER_ERROR
     
-    print("finished analyzing")
     # Create system and user prompt
     system_prompt_file = open("./src/prompts/system_prompt_vid_analysis.txt", "r")
     system_prompt = system_prompt_file.read()
@@ -100,12 +99,8 @@ def generate_itinerary():
     user_prompt_template = user_prompt_file.read()
     user_prompt = user_prompt_template.replace("<user_prompt>", args_user_prompt).replace("<video_analysis>", video_summary)
 
-    print(user_prompt)
-
     # OpenAI API call
     itinerary = openai_api_call(user_prompt, system_prompt)
-
-    print(itinerary)
 
     # Put the itinerary in DynamoDB, generating other fields
     itinerary_uuid = str(uuid.uuid4())
