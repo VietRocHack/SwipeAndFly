@@ -17,13 +17,13 @@ version_configs = {
 		"text_model": "gpt-4o",
 		"vision_model": "gpt-4o",
 		"api_key": os.environ.get("OPENAI_API_KEY"),
-        "prompt": openai_analysis_template
+        "analysis_template": openai_analysis_template
 	},
 	"groq": {
-		"base_url": "https://api.groq.com/openai/v1",
+		"base_url": "https://api.groq.com/openai/v1/chat/completions",
 		"text_model": "llama-3.3-70b-versatile",
 		"text_model": "llama-3.2-11b-vision-preview",
 		"api_key": os.environ.get("GROQ_API_KEY"),
-        "prompt": groq_analysis_template
+        "analysis_template": groq_analysis_template
 	}
 }
