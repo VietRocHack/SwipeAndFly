@@ -15,7 +15,8 @@ RUN npm ci
 # Copy the rest of the frontend stuff in here
 COPY ./frontend .
 
-# Build the 
+# Specify ARGS and Build the frontend
+ARG VITE_MAPS_API_KEY
 RUN npm run build
 
 ### Stage 2: Build and serve Flask backend

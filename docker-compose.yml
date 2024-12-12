@@ -1,11 +1,16 @@
 services:
   server:
-    build: .
+    build: 
+      context: .
+      args:  
+        VITE_MAPS_API_KEY: ${VITE_MAPS_API_KEY}
     restart: on-failure:3
     ports:
       - "0.0.0.0:5000:5000/tcp"
-    env_file:
-      - ./frontend/.env
-      - ./backend/.env
     volumes:
     - ./backend/.aws:/root/.aws 
+    environment:
+      VITE_MAPS_API_KEY: ${VITE_MAPS_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      
