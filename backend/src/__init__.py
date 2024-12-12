@@ -5,7 +5,7 @@ load_dotenv()
 
 # Initialize the Flask application
 def create_app():
-    app = Flask(__name__, static_folder="../../../frontend/dist", static_url_path='/')
+    app = Flask(__name__)
 
     # Register blueprints
     from src.routes import register_routes
