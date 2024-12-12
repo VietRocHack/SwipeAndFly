@@ -1,5 +1,6 @@
 services:
   server:
+    name: swipeandfly-server
     build: 
       context: .
       args:  
