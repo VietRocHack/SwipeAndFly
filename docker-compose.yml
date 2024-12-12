@@ -13,3 +13,4 @@ services:
       VITE_MAPS_API_KEY: ${VITE_MAPS_API_KEY}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       GROQ_API_KEY: ${GROQ_API_KEY}
+      NODE_OPTIONS: --max-old-space-size=2048
