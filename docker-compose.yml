@@ -1,0 +1,9 @@
+services:
+  server:
+    build: .
+    restart: on-failure:3
+    ports:
+      - "0.0.0.0:5000:5000/tcp"
+    env_file:
+      - ./frontend/.env
+      - ./backend/.env
