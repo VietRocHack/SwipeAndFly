@@ -17,8 +17,11 @@ itinerary_bp = Blueprint("itinerary", __name__)
 
 # OpenAI API support
 # client = OpenAI(api_key=settings.openapi_key)
-client = OpenAI()
-MODEL = "gpt-4o-mini"
+client = OpenAI(
+    base_url="https://api.groq.com/openai/v1",
+    api_key=os.environ.get("GROQ_API_KEY")
+)
+MODEL = "llama-3.3-70b-versatile"
 
 # Get the first completion of the call
 def openai_api_call(user_prompt, system_prompt):
@@ -79,34 +82,29 @@ def generate_itinerary():
 
     # Video processing 
     video_summary = "The user have not specified any videos."
-    if len(videos) != 0:
-        # response = video_analysis_call(videos, dev=False)
-        # print("CALL OK")
-        # if response.status_code == HTTP_OK:
-        #     print(response.json())
-        #     video_summary = str(response.json()['video_analysis'])
-        #     print(video_summary)
-        # else:
-        #     return "Error with video analysis", HTTP_INTERNAL_SERVER_ERROR
-        
-        try:
-            print("Analyzing videos")
-            video_summary = analyze_videos(videos, NUM_FRAMES_TO_SAMPLE, metadata_fields=["title"])
-            print(video_summary)
-            video_summary = str(video_summary)
-        except:
-            return "Error with video analysis", HTTP_INTERNAL_SERVER_ERROR
+    # if len(videos) != 0:
+    #     try:
+    #         print("Analyzing videos")
+    #         video_summary = analyze_videos(videos, NUM_FRAMES_TO_SAMPLE, metadata_fields=["title"])
+    #         print(video_summary)
+    #         video_summary = str(video_summary)
+    #     except:
+    #         return "Error with video analysis", HTTP_INTERNAL_SERVER_ERROR
         
     # Create system and user prompt
-    system_prompt_file = open("./src/prompts/prompt_with_vid_analysis.txt", "r")
+    system_prompt_file = open("./src/prompts/system_prompt_vid_analysis.txt", "r")
     system_prompt = system_prompt_file.read()
 
-    user_prompt_file = open("./src/prompts/system_prompt_vid_analysis.txt", "r")
+    user_prompt_file = open("./src/prompts/prompt_with_vid_analysis.txt", "r")
     user_prompt_template = user_prompt_file.read()
     user_prompt = user_prompt_template.replace("<user_prompt>", args_user_prompt).replace("<video_analysis>", video_summary)
 
+    print(user_prompt)
+
     # OpenAI API call
     itinerary = openai_api_call(user_prompt, system_prompt)
+
+    print(itinerary)
 
     # Put the itinerary in DynamoDB, generating other fields
     itinerary_uuid = str(uuid.uuid4())

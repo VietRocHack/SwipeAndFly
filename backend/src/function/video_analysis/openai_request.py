@@ -36,7 +36,7 @@ async def analyze_images(
 
 	headers = {
 		"Content-Type": "application/json",
-		"Authorization": f"Bearer { os.environ.get('OPENAI_API_KEY') }"
+		"Authorization": f"Bearer { os.environ.get('GROQ_API_KEY') }"
 	}
 
 	content = []
@@ -60,7 +60,7 @@ async def analyze_images(
 			})
 
 	payload = {
-		"model": "gpt-4o",
+		"model": "llama-3.3-70b-versatile",
   	"response_format": {"type": "json_object"},
 		"messages": [
 			{
@@ -88,7 +88,7 @@ async def analyze_transcript(
 
 	headers = {
 		"Content-Type": "application/json",
-		"Authorization": f"Bearer { os.environ.get('OPENAI_API_KEY') }"
+		"Authorization": f"Bearer { os.environ.get('GROQ_API_KEY') }"
 	}
 
 	content = []
