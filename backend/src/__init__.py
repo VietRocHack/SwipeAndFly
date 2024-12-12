@@ -1,11 +1,11 @@
-from flask import Flask
+from flask import Flask, send_from_directory
 
 from dotenv import load_dotenv
 load_dotenv()
 
 # Initialize the Flask application
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder="../../../frontend/dist", static_url_path='/')
 
     # Register blueprints
     from src.routes import register_routes
