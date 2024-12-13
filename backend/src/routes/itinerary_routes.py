@@ -107,9 +107,10 @@ def generate_itinerary():
     detected_activities = []
     
     for analysis in video_analysis:
-        summaries.append(analysis["summary"])
+        if "summary" in analysis:
+            summaries.append(analysis["summary"])
         
-        detected_activities.extend(analysis["activities"])
+            detected_activities.extend(analysis["activities"])
     
     print(summaries)
     print(detected_activities)
