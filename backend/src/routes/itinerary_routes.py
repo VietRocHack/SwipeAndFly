@@ -118,8 +118,8 @@ def generate_itinerary():
     # OpenAI API call
     itinerary = suggest_activities(summaries, detected_activities, args_pref_rank, args_user_prompt, "groq")
 
+    itinerary["trip_location"] = request.args.get("location")
     print("itinerary", itinerary)
-    itinerary["location"] = request.args.get("location")
 
     # Put the itinerary in DynamoDB, generating other fields
     itinerary_uuid = str(uuid.uuid4())
@@ -129,7 +129,7 @@ def generate_itinerary():
         Item={
             'id': itinerary_uuid,
             'timestamp': itinerary_timestamp,
-            'itinerary': str(itinerary),
+            'itinerary': json.dumps(itinerary),
             'prompt': args_user_prompt
         }
     )

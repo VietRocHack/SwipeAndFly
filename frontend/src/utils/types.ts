@@ -53,6 +53,7 @@ export interface Activity {
 
 export interface Itinerary{
   activities: Activity[]
+  trip_location: string;
 }
 
 export interface FormRequirements {
