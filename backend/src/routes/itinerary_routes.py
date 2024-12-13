@@ -12,6 +12,7 @@ from openai import OpenAI
 from boto3.dynamodb.conditions import Key
 from src.models.db_models import itinerary_table
 from src.shared.video_analysis import analyze_videos
+from src.function.itinerary.activity import suggest_activities
 
 itinerary_bp = Blueprint("itinerary", __name__)
 
@@ -72,6 +73,8 @@ def get_itinerary():
 def generate_itinerary():
     # Process arguments
     args_user_prompt = request.args.get("prompt")
+    args_pref_rank = request.args.get("activityTags")
+    
     rec_version = request.args.get("version", "openai")
 
     print(f"Currently recommending with version {rec_version}")
@@ -85,31 +88,36 @@ def generate_itinerary():
         videos = random.sample(videos, 5)
 
     # Video processing 
-    video_summary = "The user have not specified any videos."
+    video_analysis = "The user have not specified any videos."
     if len(videos) != 0:
         try:
             print("Analyzing videos")
-            video_summary = analyze_videos(
+            video_analysis = analyze_videos(
                 videos,
                 NUM_FRAMES_TO_SAMPLE,
                 metadata_fields=["title"],
                 version=rec_version
             )
-            print(video_summary)
-            video_summary = str(video_summary)
+            print(video_analysis)
+            # video_summary = str(video_summary)
         except:
             return "Error with video analysis", HTTP_INTERNAL_SERVER_ERROR
     
-    # Create system and user prompt
-    system_prompt_file = open("./src/prompts/system_prompt_vid_analysis.txt", "r")
-    system_prompt = system_prompt_file.read()
-
-    user_prompt_file = open("./src/prompts/prompt_with_vid_analysis.txt", "r")
-    user_prompt_template = user_prompt_file.read()
-    user_prompt = user_prompt_template.replace("<user_prompt>", args_user_prompt).replace("<video_analysis>", video_summary)
-
+    summaries = []
+    detected_activities = []
+    
+    for analysis in video_analysis:
+        summaries.append(analysis["summary"])
+        
+        detected_activities.extend(analysis["activities"])
+    
+    print(summaries)
+    print(detected_activities)
+    
     # OpenAI API call
-    itinerary = openai_api_call(user_prompt, system_prompt)
+    itinerary = suggest_activities(summaries, detected_activities, args_pref_rank, args_user_prompt, "groq")
+
+    print("itinerary", itinerary)
 
     # Put the itinerary in DynamoDB, generating other fields
     itinerary_uuid = str(uuid.uuid4())
@@ -120,7 +128,7 @@ def generate_itinerary():
             'id': itinerary_uuid,
             'timestamp': itinerary_timestamp,
             'itinerary': itinerary,
-            'prompt': user_prompt
+            'prompt': args_user_prompt
         }
     )
 

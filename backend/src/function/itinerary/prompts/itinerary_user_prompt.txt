@@ -1,0 +1,9 @@
+<user_prompt>
+
+The user have also specified a list of videos, these are the video summaries in json:
+
+<video_analysis>
+
+Here are also the recommended activities in json:
+
+<ranked_activities>

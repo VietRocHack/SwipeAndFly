@@ -234,7 +234,7 @@ async def _send_request(
 	try:
 		payload_bytes = io.BytesIO(json.dumps(payload).encode('utf-8'))
 		async with session.post(
-			url=f"{config["base_url"]}/chat/completions",
+			url=f"{config['base_url']}/chat/completions",
 			data=payload_bytes,
 			headers=headers
 		) as response:

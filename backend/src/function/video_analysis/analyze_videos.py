@@ -147,8 +147,12 @@ async def analyze_from_url(
 	# Post-process result
 	if result == True:
 		logger.info(f"Finished analyzing { video_url }, result: { data }")
+		clean_url = vid_obj.get_clean_url()
+		for activity in data["activities"]:
+			activity["video_url"] = clean_url
 		# True if result succeeds
-		data["video_url"] = vid_obj.get_clean_url()
+		data["video_url"] = clean_url
+
 		return True, data
 	else:
 		logger.error(f"Error when analyzing: { video_url }")
