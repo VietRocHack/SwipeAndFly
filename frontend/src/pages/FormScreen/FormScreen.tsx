@@ -14,7 +14,7 @@ import bgImage from "../../assets/background.jpeg";
 import "../../animation.css";
 
 const DEFAULT_START_TIME = "07:00";
-const DEFAULT_END_TIME = "11:00";
+const DEFAULT_END_TIME = "23:00";
 
 export default function FormScreen() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
