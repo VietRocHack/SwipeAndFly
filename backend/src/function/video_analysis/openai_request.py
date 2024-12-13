@@ -23,7 +23,6 @@ async def analyze_images(
 
 		Metadata is optional, and is provided as-is to the prompt to OpenAI
 	"""
-	print(f"analyzing with version: {version}")
 	# Get version config based on recommendation model version
 	config = version_configs[version]
  
@@ -36,7 +35,6 @@ async def analyze_images(
 	if version == "openai":
 		return await _block_analyze_images(session, base_64_list, config, metadata)
 	elif version == "groq":
-		print("what the fuck")
 		return await _split_analyze_images(session, base_64_list, config, metadata)
 
 async def _block_analyze_images(
@@ -100,7 +98,6 @@ async def _split_analyze_images(
 		metadata: dict[str, str] = {},
     ):
 	
-	print("split analyzing")
 	# Define headers
 	headers = {
 		"Content-Type": "application/json",
@@ -172,8 +169,6 @@ async def _split_analyze_images(
 	activity_list_raw = await _send_request(session, payload, headers, config)
  
 	activity_list_json = json.loads(activity_list_raw)
- 
-	print(activity_list_json)
  
 	return activity_list_json
     
@@ -248,7 +243,6 @@ async def _send_request(
 			logger.info(f"Reponse received from LLM Provider with code {response.status}: {json.dumps(response_json)}")
 
 			analysis_raw = response_json["choices"][0]["message"]["content"]
-			print(analysis_raw)
 
 			return analysis_raw
 
