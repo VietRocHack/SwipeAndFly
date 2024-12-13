@@ -11,6 +11,9 @@ with open("./src/function/video_analysis/prompts/openai_analysis_json_template.t
 with open("./src/function/video_analysis/prompts/groq_analysis_json_template.txt") as f:
 	groq_analysis_template = f.read()
 
+with open("./src/function/video_analysis/prompts/groq_activity_json_template.txt") as f:
+	groq_activity_list_template = f.read()
+
 version_configs = {
 	"openai": {
 		"base_url": "https://api.openai.com/v1/chat/completions",
@@ -24,6 +27,7 @@ version_configs = {
 		"text_model": "llama-3.3-70b-versatile",
 		"vision_model": "llama-3.2-11b-vision-preview",
 		"api_key": os.environ.get("GROQ_API_KEY"),
-        "analysis_template": groq_analysis_template
+        "analysis_template": groq_analysis_template,
+        "activity_list_template": groq_activity_list_template
 	}
 }

@@ -107,7 +107,7 @@ async def _split_analyze_images(
 		"Authorization": f"Bearer { config['api_key'] }"
 	}
 	analysis_list = []
-	# Prepare images in user message
+	# Caption each images one by one
 	for base64_image in base_64_list:
 		payload = {
 			"model": config["vision_model"],
@@ -137,7 +137,45 @@ async def _split_analyze_images(
 		analysis_raw = await _send_request(session, payload, headers, config)
 		analysis_list.append(analysis_raw)
 
-	return analysis_list
+	# Now put everything together to get the final analysis
+	payload = {
+		"model": config["vision_model"],
+		"response_format": {
+			"type": "json_object"
+		},
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": """You are a travel agent who knows how to give out good and personalized itinerary for their customers."""
+						"""The user really wants do the stuff in the given TikTok video."""
+						f"""Analyze the videos and create a list of at most 5 activities that you think they might like to do from the"""
+						f"""given TikTok video and give out a json response using the following format {config["activity_list_template"]}"""
+						"""Be as specific as possible about the activities but do not include duplicate or similar sounding activity. You are given a list of captions of some of the images inside a TikTok video"""
+						f"""Caption list: {analysis_list}"""
+						f"""Included is a metadata of the video for better analysis: {json.dumps(metadata)} """
+					},
+					{
+						"type": "image_url",
+						"image_url": {
+							"detail": "low", # details low is around 20 tokens, while detail high is around 900 tokens
+							"url": f"data:image/jpeg;base64,{base64_image}"
+						}
+					}
+				]
+			}
+		],
+		"max_tokens": 1000
+	}
+	activity_list_raw = await _send_request(session, payload, headers, config)
+ 
+	activity_list_json = json.loads(activity_list_raw)
+ 
+	print(activity_list_json)
+ 
+	return activity_list_json
     
 
 async def analyze_transcript(
