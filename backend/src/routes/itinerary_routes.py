@@ -129,7 +129,7 @@ def generate_itinerary():
         Item={
             'id': itinerary_uuid,
             'timestamp': itinerary_timestamp,
-            'itinerary': itinerary,
+            'itinerary': str(itinerary),
             'prompt': args_user_prompt
         }
     )

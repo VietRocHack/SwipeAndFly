@@ -38,7 +38,7 @@ def suggest_activities(
         ]
     )
 
-    return str(completion.choices[0].message.content)
+    return json.loads(completion.choices[0].message.content)
     
     
 
