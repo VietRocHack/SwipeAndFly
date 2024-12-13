@@ -23,7 +23,7 @@ async def analyze_images(
 
 		Metadata is optional, and is provided as-is to the prompt to OpenAI
 	"""
-	
+	print(f"analyzing with version: {version}")
 	# Get version config based on recommendation model version
 	config = version_configs[version]
  
@@ -33,49 +33,112 @@ async def analyze_images(
 		_, image_jpg = cv2.imencode('.jpg', image)
 		base_64_list.append(base64.b64encode(image_jpg.tobytes()).decode('utf-8'))
 
-	# Prepare content for messages
-	content = []
-	content.append(
-		{
-			"type": "text",
-			"text": """These images are from a TikTok video. """
-			"""Analyze this video using simple and to-the-point vocab using this json format: """
-			f"""{ config["analysis_template"] }"""
-			f"""Included is a metadata of the video for better analysis: {json.dumps(metadata)} """
-		})
+	if version == "openai":
+		return await _block_analyze_images(session, base_64_list, config, metadata)
+	elif version == "groq":
+		print("what the fuck")
+		return await _split_analyze_images(session, base_64_list, config, metadata)
 
-	# Prepare images in user message
-	for base64_image in base_64_list:
+async def _block_analyze_images(
+		session: ClientSession,
+		base_64_list: list,
+  		config: dict,
+		metadata: dict[str, str] = {},
+    ):
+		# Define headers
+		headers = {
+			"Content-Type": "application/json",
+			"Authorization": f"Bearer { config['api_key'] }"
+		}
+		# Prepare content for messages
+		content = []
 		content.append(
 			{
-				"type": "image_url",
-				"image_url": {
-					"detail": "low", # details low is around 20 tokens, while detail high is around 900 tokens
-					"url": f"data:image/jpeg;base64,{base64_image}"
-				}
+				"type": "text",
+				"text": """These images are from a TikTok video. """
+				"""Analyze this video using simple and to-the-point vocab using this json format: """
+				f"""{ config["analysis_template"] }"""
+				f"""Included is a metadata of the video for better analysis: {json.dumps(metadata)} """
 			})
 
+		# Prepare images in user message
+		for base64_image in base_64_list:
+			content.append(
+				{
+					"type": "image_url",
+					"image_url": {
+						"detail": "low", # details low is around 20 tokens, while detail high is around 900 tokens
+						"url": f"data:image/jpeg;base64,{base64_image}"
+					}
+				})
+
+		# Define payload
+		payload = {
+			"model": config["vision_model"],
+			"response_format": {
+				"type": "json_object"
+			},
+			"messages": [
+				{
+					"role": "user",
+					"content": content
+				}
+			],
+			"max_tokens": 200
+		}
+		
+		analysis_raw = await _send_request(session, payload, headers, config)
+    
+		analysis_json = json.loads(analysis_raw)
+  
+		return analysis_json
+
+async def _split_analyze_images(
+		session: ClientSession,
+		base_64_list: list,
+  		config: dict,
+		metadata: dict[str, str] = {},
+    ):
+	
+	print("split analyzing")
 	# Define headers
 	headers = {
 		"Content-Type": "application/json",
 		"Authorization": f"Bearer { config['api_key'] }"
 	}
+	analysis_list = []
+	# Prepare images in user message
+	for base64_image in base_64_list:
+		payload = {
+			"model": config["vision_model"],
+			"messages": [
+				{
+					"role": "user",
+					"content": [
+						{
+							"type": "text",
+							"text": """This image is from a TikTok video. """
+							"""Analyze this image using simple and to-the-point vocab but be as detailed as possible."""
+							f"""Included is a metadata of the video for better analysis: {json.dumps(metadata)} """
+						},
+						{
+							"type": "image_url",
+							"image_url": {
+								"detail": "low", # details low is around 20 tokens, while detail high is around 900 tokens
+								"url": f"data:image/jpeg;base64,{base64_image}"
+							}
+						}
+					]
+				}
+			],
+			"max_tokens": 50
+		}
 
-	# Define payload
-	payload = {
-		"model": config["vision_model"],
-		"response_format": {
-      		"type": "json_object"
-        },
-		"messages": [
-			{
-				"role": "user",
-				"content": content
-			}
-		],
-		"max_tokens": 200
-	}
-	return await _send_request(session, payload, headers, config)
+		analysis_raw = await _send_request(session, payload, headers, config)
+		analysis_list.append(analysis_raw)
+
+	return analysis_list
+    
 
 async def analyze_transcript(
 		session: ClientSession,
@@ -149,9 +212,7 @@ async def _send_request(
 			analysis_raw = response_json["choices"][0]["message"]["content"]
 			print(analysis_raw)
 
-			analysis_json = json.loads(analysis_raw)
-			print(analysis_json)
-			return analysis_json
+			return analysis_raw
 
 	except ClientError as e:
 		logger.error(f"ClientError during requesting LLM Provider: {e}")

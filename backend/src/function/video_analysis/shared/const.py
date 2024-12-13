@@ -17,7 +17,7 @@ version_configs = {
 		"text_model": "gpt-4o",
 		"vision_model": "gpt-4o",
 		"api_key": os.environ.get("OPENAI_API_KEY"),
-        "analysis_template": openai_analysis_template
+        "analysis_template": openai_analysis_template,
 	},
 	"groq": {
 		"base_url": "https://api.groq.com/openai/v1/chat/completions",

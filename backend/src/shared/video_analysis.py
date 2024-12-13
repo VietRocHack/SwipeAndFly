@@ -9,6 +9,7 @@ def analyze_videos(
         metadata_fields=["title"],
         version: str = "openai"
     ):
+    print("starting analysis")
     _, content = asyncio.run(video_analysis.analyze_from_urls(
 		video_urls,
 		num_frames_to_sample,
