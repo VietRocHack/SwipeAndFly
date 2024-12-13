@@ -149,8 +149,8 @@ async def _split_analyze_images(
 						"text": """You are a travel agent who knows how to give out good and personalized itinerary for their customers."""
 						"""The user really wants do the stuff in the given TikTok video."""
 						f"""Analyze the videos and create a list of at most 5 activities that you think they might like to do from the"""
-						f"""given TikTok video and give out a json response using the following format {config["activity_list_template"]}"""
-						"""Be as specific as possible about the activities but do not include duplicate or similar sounding activity. You are given a list of captions of some of the images inside a TikTok video"""
+						f"""given TikTok video and give out a json response using the following format {config["activity_list_template"]} and each activity should strictly contain the given fields."""
+						"""Be as specific as possible about the activities and DO NOT DUPLICATE activity. You are given a list of captions of some of the images inside a TikTok video"""
 						f"""Caption list: {analysis_list}"""
 						f"""Included is a metadata of the video for better analysis: {json.dumps(metadata)} """
 					},
@@ -234,7 +234,7 @@ async def _send_request(
 	try:
 		payload_bytes = io.BytesIO(json.dumps(payload).encode('utf-8'))
 		async with session.post(
-			url=config["base_url"],
+			url=f"{config["base_url"]}/chat/completions",
 			data=payload_bytes,
 			headers=headers
 		) as response:
