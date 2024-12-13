@@ -9,7 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
-from src.function.video_analysis import utils
+from src.function.video_analysis.shared import utils
 import time
 
 with open("./function/suggest_videos_hardcode.json") as f:

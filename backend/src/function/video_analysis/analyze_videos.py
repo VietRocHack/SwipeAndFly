@@ -1,7 +1,8 @@
 import re
 import traceback
+from src.function.video_analysis.shared import utils
 import cv2
-from src.function.video_analysis import openai_request, utils
+from src.function.video_analysis import openai_request
 from yt_dlp import YoutubeDL
 from urllib.parse import urlparse
 from dataclasses import dataclass, field
@@ -38,7 +39,8 @@ class _TikTokVideoObject:
 async def analyze_from_urls(
 		video_urls: list[str],
 		num_frames_to_sample: int = 5,
-		metadata_fields: list[str] = [] # supports "title", [more to be added]
+		metadata_fields: list[str] = [], # supports "title", [more to be added]
+		version: str = "openai"
 	) -> tuple[bool, dict[str, str]]:
 	"""
 		Helper functions for analyze_from_url. Returns True if every video is
@@ -63,7 +65,8 @@ async def analyze_from_urls(
 					session=session,
 					video_url=video_url,
 					num_frames_to_sample=num_frames_to_sample,
-					metadata_fields=metadata_fields
+					metadata_fields=metadata_fields,
+					version=version
 				)
 			)
 		results = await asyncio.gather(*tasks)
@@ -81,7 +84,8 @@ async def analyze_from_url(
 		session: ClientSession,
 		video_url: str,
 		num_frames_to_sample: int = 5,
-		metadata_fields: list[str] = []
+		metadata_fields: list[str] = [],
+		version: str = "openai"
 ) -> tuple[bool, dict]:
 	"""
 		Takes in an url of a video, a positive integer of frames to sample and
@@ -99,24 +103,26 @@ async def analyze_from_url(
 	vid_obj = _TikTokVideoObject(id=paths[3], user=paths[1])
 	
 	# Flag to switch to using video
-	use_video = False
+	use_video = True
 
 	# Download transcript from url
-	try:
-		transcript_path, metadata = download_single_transcript(video_url, metadata_fields)
-		if transcript_path == "":
+	if not use_video:
+		try:
+			transcript_path, metadata = download_single_transcript(video_url, metadata_fields)
+			if transcript_path == "":
+				use_video = True
+				logger.info(f"Switching to video because transcript is not available for { video_url }")
+			else:
+				# Start analyzing process 
+				result, data = await analyze_from_transcript(
+					session,
+					transcript_path,
+					metadata,
+					version
+				)
+		except Exception:
 			use_video = True
-			logger.info(f"Switching to video because transcript is not available for { video_url }")
-		else:
-			# Start analyzing process 
-			result, data = await analyze_from_transcript(
-				session,
-				transcript_path,
-				metadata
-			)
-	except Exception:
-		use_video = True
-		logger.info(f"Switching to video because unable to download transcript with { video_url } with exception { traceback.format_exc() }")
+			logger.info(f"Switching to video because unable to download transcript with { video_url } with exception { traceback.format_exc() }")
 
 	# If unable to download transcript, then switch to video
 	if use_video:
@@ -130,7 +136,8 @@ async def analyze_from_url(
 					session,
 					video_path,
 					num_frames_to_sample,
-					metadata
+					metadata,
+     				version	
 				)
 		except Exception:
 			use_video = True
@@ -140,8 +147,12 @@ async def analyze_from_url(
 	# Post-process result
 	if result == True:
 		logger.info(f"Finished analyzing { video_url }, result: { data }")
+		clean_url = vid_obj.get_clean_url()
+		for activity in data["activities"]:
+			activity["video_url"] = clean_url
 		# True if result succeeds
-		data["video_url"] = vid_obj.get_clean_url()
+		data["video_url"] = clean_url
+
 		return True, data
 	else:
 		logger.error(f"Error when analyzing: { video_url }")
@@ -151,7 +162,8 @@ async def analyze_from_path(
 		session: ClientSession,
 		video_path: str,
 		num_frames_to_sample: int = 5,
-		metadata: dict[str, str] = {}
+		metadata: dict[str, str] = {},
+		version: str = "openai"
 	) -> tuple[bool, dict]:
 	"""
 		Analyze a video from its video path and metadata (optional)
@@ -165,7 +177,8 @@ async def analyze_from_path(
 	analysis = await openai_request.analyze_images(
 			session=session,
 			images=frames,
-			metadata=metadata
+			metadata=metadata,
+   			version=version
 		)
 
 	return (True, analysis)

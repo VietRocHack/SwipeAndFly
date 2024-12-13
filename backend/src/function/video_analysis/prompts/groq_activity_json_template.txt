@@ -1,0 +1,12 @@
+{
+  "summary": <A quick summary of what the video is about>,
+  "activities": <an array of activities in the form of object Actv>
+  [
+    {
+      "title": <the activity itself, described in no longer than 10 words>,
+      "location": <the location of the activity, which should be a precise store name or venue or city and country>,
+      "categories": <the categories of the given activity, only choose from [Adventure, Beach, Camping, Cruise, Cultural Experience, Dining, Entertainment, Family Fun, Festival, Hiking, History, Museum, Nightlife, Photography, Relaxation, Road Trip, Shopping, Sightseeing, Spa, Sports, Theme Park, Water Sports, Wildlife, Winter Sports] sorted by most relevance to the activity>
+    },
+    ... <more activities here>
+  ]
+}
