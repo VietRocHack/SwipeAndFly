@@ -16,6 +16,7 @@ const USE_API = true;
 interface FetchResult {
   itinerary: string;
   prompt: string;
+  location: string;
 }
 
 const dummyData: Itinerary = {
@@ -145,7 +146,7 @@ export default function YourTripScreen() {
 
   // get the location scraping from the prompt (we should've designed better)
   let location = "";
-  if (USE_API) location = extractLocationString(data?.prompt as string);
+  if (USE_API) location = data?.location ?? "";
   else location = extractLocationString(dummyPrompt);
 
   const activityCount = itineraryNotNull.activities.length;

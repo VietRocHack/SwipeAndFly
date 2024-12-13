@@ -119,6 +119,7 @@ def generate_itinerary():
     itinerary = suggest_activities(summaries, detected_activities, args_pref_rank, args_user_prompt, "groq")
 
     print("itinerary", itinerary)
+    itinerary["location"] = request.args.get("location")
 
     # Put the itinerary in DynamoDB, generating other fields
     itinerary_uuid = str(uuid.uuid4())
