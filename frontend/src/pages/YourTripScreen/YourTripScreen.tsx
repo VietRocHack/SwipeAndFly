@@ -100,7 +100,7 @@ export default function YourTripScreen() {
       try {
         if (USE_API) {
           const response = await axios.get<FetchResult>(
-            `/api/itinerary/get_itinerary?uuid=${uuid}&fields=itinerary,prompt`
+            `/api/itinerary/get_itinerary?uuid=${uuid}&fields=itinerary,prompt,location`
             // `http://127.0.0.1:8080/get_itinerary?uuid=${uuid}&fields=itinerary`
             // `http://127.0.0.1:8080`
           );
