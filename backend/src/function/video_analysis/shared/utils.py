@@ -4,10 +4,10 @@ import os
 from urllib.parse import urlparse
 
 def setup_logger(name, filename, level=logging.DEBUG):
-	# Ensure the logs directory exists
+	# Ensure the logs directory exists. exist_ok=True because multiple
+	# gunicorn worker processes race to create this on startup.
 	log_dir = './logs'
-	if not os.path.exists(log_dir):
-			os.makedirs(log_dir)
+	os.makedirs(log_dir, exist_ok=True)
 
 	# Set up the rotating file handler
 	log_file = os.path.join(log_dir, filename)
