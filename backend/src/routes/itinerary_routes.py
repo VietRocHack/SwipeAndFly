@@ -8,33 +8,11 @@ import random
 
 from flask import Blueprint, request, jsonify
 from src.shared import *
-from openai import OpenAI
 from src.models.db_models import itinerary_collection
 from src.shared.video_analysis import analyze_videos
 from src.function.itinerary.activity import suggest_activities
 
 itinerary_bp = Blueprint("itinerary", __name__)
-
-# OpenAI API support
-# client = OpenAI(api_key=settings.openapi_key)
-client = OpenAI(
-    base_url="https://api.groq.com/openai/v1",
-    api_key=os.environ.get("GROQ_API_KEY")
-)
-MODEL = "llama-3.3-70b-versatile"
-
-# Get the first completion of the call
-def openai_api_call(user_prompt, system_prompt):
-    # Generate an itinerary from OpenAI
-    completion = client.chat.completions.create(
-        model = MODEL,
-        response_format={"type": "json_object"},
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ]
-    )
-    return str(completion.choices[0].message.content)
 
 # Get a response from video analysis API
 def video_analysis_call(videos, dev=False):
