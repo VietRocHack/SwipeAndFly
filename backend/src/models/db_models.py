@@ -1,5 +1,5 @@
-import boto3
+from google.cloud import firestore
 
-# AWS DynamoDB support
-dynamodb = boto3.resource('dynamodb', region_name="us-east-1")
-itinerary_table = dynamodb.Table('csc477-swipeandfly-itinerary')
+# Firestore support (dedicated "swipeandfly" database in the vietrochack-lab project)
+db = firestore.Client(database="swipeandfly")
+itinerary_collection = db.collection("itineraries")

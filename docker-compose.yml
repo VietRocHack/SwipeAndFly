@@ -9,10 +9,11 @@ services:
     ports:
       - "0.0.0.0:5000:5000/tcp"
     volumes:
-    - ${AWS_CREDENTIALS_PATH}:/root/.aws 
+    - ${GCLOUD_ADC_PATH}:/root/.config/gcloud
     environment:
       VITE_MAPS_API_KEY: ${VITE_MAPS_API_KEY}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       GROQ_API_KEY: ${GROQ_API_KEY}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GOOGLE_CLOUD_PROJECT: vietrochack-lab
       NODE_OPTIONS: --max-old-space-size=2048

@@ -9,8 +9,7 @@ import random
 from flask import Blueprint, request, jsonify
 from src.shared import *
 from openai import OpenAI
-from boto3.dynamodb.conditions import Key
-from src.models.db_models import itinerary_table
+from src.models.db_models import itinerary_collection
 from src.shared.video_analysis import analyze_videos
 from src.function.itinerary.activity import suggest_activities
 
@@ -60,14 +59,11 @@ def get_itinerary():
     fields = request.args.get('fields')
     if fields == "":
         return "Error: You must specify fields.", HTTP_BAD_REQUEST
-    
-    # Get a response from DynamoDB
-    response = itinerary_table.query(
-        KeyConditionExpression=Key('id').eq(id),
-        ProjectionExpression=fields
-    )
 
-    return response['Items'][0], HTTP_OK
+    # Get a response from Firestore
+    doc = itinerary_collection.document(id).get(field_paths=fields.split(','))
+
+    return doc.to_dict(), HTTP_OK
 
 @itinerary_bp.route("/api/itinerary/generate_itinerary", methods=['POST'])
 def generate_itinerary():
@@ -119,18 +115,16 @@ def generate_itinerary():
 
     print("itinerary", itinerary)
 
-    # Put the itinerary in DynamoDB, generating other fields
+    # Put the itinerary in Firestore, generating other fields
     itinerary_uuid = str(uuid.uuid4())
     itinerary_timestamp = str(time.time())
 
-    itinerary_table.put_item(
-        Item={
-            'id': itinerary_uuid,
-            'timestamp': itinerary_timestamp,
-            'itinerary': itinerary,
-            'prompt': args_user_prompt
-        }
-    )
+    itinerary_collection.document(itinerary_uuid).set({
+        'id': itinerary_uuid,
+        'timestamp': itinerary_timestamp,
+        'itinerary': itinerary,
+        'prompt': args_user_prompt
+    })
 
     return itinerary_uuid, HTTP_CREATED
 
