@@ -34,7 +34,7 @@ COPY ./backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install missing dependencies for cv2
-RUN apt-get update && apt-get install -y libgl1-mesa-glx
+RUN apt-get update && apt-get install -y libgl1 libglib2.0-0
 
 # Copy the current directory contents into the container at /app/backend
 COPY ./backend .

@@ -1,0 +1,16 @@
+{
+  "hosting": {
+    "target": "swipeandfly",
+    "public": "public",
+    "ignore": ["firebase.json", "**/.*"],
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "swipeandfly-server",
+          "region": "us-central1"
+        }
+      }
+    ]
+  }
+}

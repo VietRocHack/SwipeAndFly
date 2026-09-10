@@ -1,0 +1,47 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build image
+        run: |
+          IMAGE="us-central1-docker.pkg.dev/vietrochack-lab/swipeandfly/server:${{ github.sha }}"
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+          gcloud builds submit \
+            --config=cloudbuild.yaml \
+            --substitutions=_IMAGE="$IMAGE",_VITE_MAPS_API_KEY="${{ secrets.VITE_MAPS_API_KEY }}" \
+            --project=vietrochack-lab
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy swipeandfly-server \
+            --image="$IMAGE" \
+            --region=us-central1 \
+            --project=vietrochack-lab \
+            --allow-unauthenticated \
+            --set-env-vars="GOOGLE_CLOUD_PROJECT=vietrochack-lab" \
+            --set-secrets="GEMINI_API_KEY=swipeandfly-gemini-api-key:latest"
+
+      - name: Deploy Firebase Hosting
+        run: |
+          npm install -g firebase-tools
+          firebase deploy --only hosting:swipeandfly --project vietrochack-lab
