@@ -28,3 +28,16 @@ Known non-blocking issues and cleanup, found while migrating to
 - [ ] `swipeandfly.world` (the pre-migration VM deploy) is still live and
   untouched - decommission it once `swipeandfly.vietrochack.com` is
   confirmed stable.
+- [ ] **Split the single-container Docker architecture into a plain
+  separate backend + frontend deploy**, dropping Docker/Cloud Build/nginx
+  entirely: Flask as its own Cloud Run (or Cloud Functions) service,
+  React built and served directly as static files by Firebase Hosting
+  (Hosting rewriting only `/api/**` to the backend, per the migration
+  guide's default topology - see ADR 0001 for why it's a single
+  container today instead). Requested by Vuong (2026-09-10) as a
+  follow-up, explicitly deferred for now to save session usage. Would
+  remove `Dockerfile`, `cloudbuild.yaml`, the Cloud Build build step in
+  `scripts/deploy.sh`/`.github/workflows/deploy.yml`, and everything
+  nginx-related (`docker-compose.prod.yml`'s nginx service, `user_conf.d/`)
+  once `swipeandfly.world` (the only thing still using nginx) is also
+  decommissioned.
