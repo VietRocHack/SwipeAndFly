@@ -22,7 +22,11 @@ const Footer = () => {
         </Link>
       </Typography>
       <Typography variant="body2" color="textSecondary">
-        &copy; {new Date().getFullYear()} VietRocHack. All rights reserved.
+        &copy; {new Date().getFullYear()}{" "}
+        <Link href="https://vietrochack.com" color="inherit" underline="hover">
+          VietRocHack
+        </Link>
+        . All rights reserved.
       </Typography>
     </Box>
   );
