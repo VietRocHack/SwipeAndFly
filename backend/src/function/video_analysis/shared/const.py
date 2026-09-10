@@ -25,8 +25,8 @@ version_configs = {
 	"gemini": {
 		# Gemini's OpenAI-compatible endpoint: https://ai.google.dev/gemini-api/docs/openai
 		"base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
-		"text_model": "gemini-2.5-flash",
-		"vision_model": "gemini-2.5-flash",
+		"text_model": "gemini-3.5-flash-lite",
+		"vision_model": "gemini-3.5-flash-lite",
 		"api_key": os.environ.get("GEMINI_API_KEY"),
         "analysis_template": openai_analysis_template,
 	},
