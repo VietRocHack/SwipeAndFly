@@ -45,5 +45,6 @@ EXPOSE 5000/tcp
 # Copy React static files built in stage 1
 COPY --from=build /app/frontend/dist/ ./static/
 
-# Use ENTRYPOINT with Gunicorn settings inline
-ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--access-logfile", "-", "--error-logfile", "-", "--log-level", "info", "src:create_app()"]
+# Bind to $PORT when set (Cloud Run injects PORT=8080), falling back to 5000
+# for the docker-compose/VM deploy path.
+ENTRYPOINT ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-5000} --workers 4 --access-logfile - --error-logfile - --log-level info 'src:create_app()'"]
