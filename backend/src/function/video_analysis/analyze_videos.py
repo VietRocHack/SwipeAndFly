@@ -40,7 +40,7 @@ async def analyze_from_urls(
 		video_urls: list[str],
 		num_frames_to_sample: int = 5,
 		metadata_fields: list[str] = [], # supports "title", [more to be added]
-		version: str = "openai"
+		version: str = "gemini"
 	) -> tuple[bool, dict[str, str]]:
 	"""
 		Helper functions for analyze_from_url. Returns True if every video is
@@ -85,7 +85,7 @@ async def analyze_from_url(
 		video_url: str,
 		num_frames_to_sample: int = 5,
 		metadata_fields: list[str] = [],
-		version: str = "openai"
+		version: str = "gemini"
 ) -> tuple[bool, dict]:
 	"""
 		Takes in an url of a video, a positive integer of frames to sample and
@@ -163,7 +163,7 @@ async def analyze_from_path(
 		video_path: str,
 		num_frames_to_sample: int = 5,
 		metadata: dict[str, str] = {},
-		version: str = "openai"
+		version: str = "gemini"
 	) -> tuple[bool, dict]:
 	"""
 		Analyze a video from its video path and metadata (optional)

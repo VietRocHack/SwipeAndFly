@@ -111,7 +111,7 @@ export default function FormSubmitGenerate({
           )}` +
           `&comments=${encodeURIComponent(tripInfo.comments)}` +
           `&video_urls=${prepareTikTokUrls(videos)}`+
-          `&version=groq`,
+          `&version=gemini`,
         {
           method: "POST",
         }

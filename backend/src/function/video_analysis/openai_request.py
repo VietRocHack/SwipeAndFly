@@ -15,13 +15,13 @@ async def analyze_images(
 		session: ClientSession,
 		images: list,
 		metadata: dict[str, str] = {},
-		version: str = "openai"
+		version: str = "gemini"
 	) -> dict:
 	"""
 		Receives a list of images supposedly to be sampled from a video, gives them
-		to OpenAI API, and returns the analysis on them.
+		to the configured LLM provider, and returns the analysis on them.
 
-		Metadata is optional, and is provided as-is to the prompt to OpenAI
+		Metadata is optional, and is provided as-is to the prompt
 	"""
 	# Get version config based on recommendation model version
 	config = version_configs[version]
@@ -32,10 +32,10 @@ async def analyze_images(
 		_, image_jpg = cv2.imencode('.jpg', image)
 		base_64_list.append(base64.b64encode(image_jpg.tobytes()).decode('utf-8'))
 
-	if version == "openai":
-		return await _block_analyze_images(session, base_64_list, config, metadata)
-	elif version == "groq":
+	if version == "groq":
 		return await _split_analyze_images(session, base_64_list, config, metadata)
+	else:
+		return await _block_analyze_images(session, base_64_list, config, metadata)
 
 async def _block_analyze_images(
 		session: ClientSession,
@@ -177,13 +177,13 @@ async def analyze_transcript(
 		session: ClientSession,
 		transcript: str,
 		metadata: dict[str, str] = {},
-		version: str = "openai"
+		version: str = "gemini"
 	) -> dict:
 	"""
 		Receives a list of images supposedly to be sampled from a video, gives them
-		to OpenAI API, and returns the analysis on them.
+		to the configured LLM provider, and returns the analysis on them.
 
-		Metadata is optional, and is provided as-is to the prompt to OpenAI
+		Metadata is optional, and is provided as-is to the prompt
 	"""
 
 	# Get version config based on recommendation model version

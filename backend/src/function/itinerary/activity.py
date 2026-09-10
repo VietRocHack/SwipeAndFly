@@ -7,7 +7,7 @@ def suggest_activities(
     detected_activities: list,
     pref_rank: list,
     user_prompt: str,
-    version: str = "openai"
+    version: str = "gemini"
     ):
     
     config = version_configs[version]

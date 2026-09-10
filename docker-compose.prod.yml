@@ -10,8 +10,9 @@ services:
     - ${AWS_CREDENTIALS_PATH}:/root/.aws 
     environment:
       VITE_MAPS_API_KEY: ${VITE_MAPS_API_KEY}
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
       GROQ_API_KEY: ${GROQ_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
   nginx:
     container_name: nginx
     image: jonasal/nginx-certbot

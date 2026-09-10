@@ -7,7 +7,7 @@ def analyze_videos(
         video_urls,
         num_frames_to_sample=5,
         metadata_fields=["title"],
-        version: str = "openai"
+        version: str = "gemini"
     ):
     print("starting analysis")
     _, content = asyncio.run(video_analysis.analyze_from_urls(

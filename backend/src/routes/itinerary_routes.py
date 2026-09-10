@@ -75,7 +75,7 @@ def generate_itinerary():
     args_user_prompt = request.args.get("prompt")
     args_pref_rank = request.args.get("activityTags")
     
-    rec_version = request.args.get("version", "openai")
+    rec_version = request.args.get("version", "gemini")
 
     print(f"Currently recommending with version {rec_version}")
     
@@ -115,7 +115,7 @@ def generate_itinerary():
     print(detected_activities)
     
     # OpenAI API call
-    itinerary = suggest_activities(summaries, detected_activities, args_pref_rank, args_user_prompt, "groq")
+    itinerary = suggest_activities(summaries, detected_activities, args_pref_rank, args_user_prompt, rec_version)
 
     print("itinerary", itinerary)
 
