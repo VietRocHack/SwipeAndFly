@@ -43,16 +43,16 @@ All under GCP project `vietrochack-lab`:
 - GitHub repo (`VietRocHack/SwipeAndFly`) variables/secrets:
   - vars: `WORKLOAD_IDENTITY_PROVIDER`, `GCP_SERVICE_ACCOUNT`
   - secrets: `VITE_MAPS_API_KEY` (needed at CI build time, gets baked into
-    the frontend bundle - see ADR 0001 on why this can't go through
-    `gcloud run deploy --source`)
+    the frontend bundle via a plain `npm run build` step - see ADR 0004)
 
 ## Ongoing
 
-- **Deploy**: push to `main` -> `.github/workflows/deploy.yml` builds via
-  Cloud Build (`cloudbuild.yaml`) and deploys to Cloud Run + Firebase
-  Hosting automatically. Manual equivalent: `scripts/deploy.sh` (needs
-  `VITE_MAPS_API_KEY` in your shell env, and `gcloud`/`firebase` auth with
-  access to `vietrochack-lab`).
+- **Deploy**: push to `main` -> `.github/workflows/deploy.yml` deploys the
+  backend to Cloud Run straight from source (`gcloud run deploy --source`,
+  Google Cloud Buildpacks - no Dockerfile, see ADR 0004), builds the
+  frontend, and deploys Firebase Hosting, automatically. Manual
+  equivalent: `scripts/deploy.sh` (needs `VITE_MAPS_API_KEY` in your shell
+  env, and `gcloud`/`firebase` auth with access to `vietrochack-lab`).
 - **Check custom domain status**:
   ```bash
   TOKEN=$(gcloud auth print-access-token)
@@ -67,8 +67,14 @@ All under GCP project `vietrochack-lab`:
 
 ## Known gaps
 
-- `swipeandfly.world` (the old VM deploy) is untouched by this migration
-  and still live - nothing here shuts it down. Decommissioning it is a
-  separate, manual step whenever you're ready to fully cut over.
+- `swipeandfly.world` (the old VM deploy) is confirmed dead (2026-09-10,
+  per Vuong) - its docker-compose/nginx deploy path and
+  `scripts/deploy-prod.sh` have been removed (see ADR 0004).
 - The old VM's DynamoDB itinerary history doesn't carry over - Firestore
   starts empty (see ADR 0002).
+- **Unverified**: the backend's new Buildpacks-based Cloud Run build (see
+  ADR 0004) may not have the system libraries `cv2` needs
+  (`libgl1`/`libglib2.0-0`) - check `gcloud run services logs read
+  swipeandfly-server --project=vietrochack-lab --region=us-central1` for a
+  `libGL.so.1` import error on the video-analysis route after the next
+  deploy. Tracked in `docs/backlog.md`.

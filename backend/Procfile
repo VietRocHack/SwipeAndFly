@@ -1,0 +1,1 @@
+web: gunicorn --bind :$PORT --workers 4 --access-logfile - --error-logfile - --log-level info main:app

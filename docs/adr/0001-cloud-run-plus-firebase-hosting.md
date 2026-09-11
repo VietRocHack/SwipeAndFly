@@ -1,7 +1,10 @@
 # 0001: Deploy topology - Cloud Run + Firebase Hosting rewrite
 
 ## Status
-Accepted (2026-09-10)
+Superseded by [0004](0004-split-backend-frontend-deploy.md) (2026-09-10).
+The container-per-Cloud-Run-service mechanics below (scale-to-zero,
+listening on `$PORT`, custom domain via Hosting) still apply; the
+single-container-serves-everything part does not.
 
 ## Context
 SwipeAndFly's backend is a single Flask/gunicorn process that already

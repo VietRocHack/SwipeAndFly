@@ -25,19 +25,19 @@ Known non-blocking issues and cleanup, found while migrating to
 - [ ] No Devpost link found anywhere in the repo to add to the footer
   per the migration guide's branding checklist - add one if the project
   has one.
-- [ ] `swipeandfly.world` (the pre-migration VM deploy) is still live and
-  untouched - decommission it once `swipeandfly.vietrochack.com` is
-  confirmed stable.
-- [ ] **Split the single-container Docker architecture into a plain
-  separate backend + frontend deploy**, dropping Docker/Cloud Build/nginx
-  entirely: Flask as its own Cloud Run (or Cloud Functions) service,
-  React built and served directly as static files by Firebase Hosting
-  (Hosting rewriting only `/api/**` to the backend, per the migration
-  guide's default topology - see ADR 0001 for why it's a single
-  container today instead). Requested by Vuong (2026-09-10) as a
-  follow-up, explicitly deferred for now to save session usage. Would
-  remove `Dockerfile`, `cloudbuild.yaml`, the Cloud Build build step in
-  `scripts/deploy.sh`/`.github/workflows/deploy.yml`, and everything
-  nginx-related (`docker-compose.prod.yml`'s nginx service, `user_conf.d/`)
-  once `swipeandfly.world` (the only thing still using nginx) is also
-  decommissioned.
+- [x] `swipeandfly.world` (the pre-migration VM deploy) - confirmed dead
+  by Vuong (2026-09-10); its deploy path is removed (see ADR 0004).
+- [x] **Split the single-container Docker architecture into a plain
+  separate backend + frontend deploy**, dropping Docker/Cloud
+  Build/nginx entirely (2026-09-10, see ADR 0004 and
+  `docs/progress/20260910.md`).
+- [ ] **Verify the backend's new Buildpacks-based Cloud Run build
+  actually works for video analysis.** `cv2` (`opencv-python-headless`)
+  needs `libgl1`/`libglib2.0-0` to import at all (see ADR 0004's
+  Consequences and `docs/progress/20260909.md` for the original bug);
+  Google Cloud Buildpacks has no supported way to install those apt
+  packages, unlike the Dockerfile it replaced. Not yet confirmed against
+  a real deploy. If the deployed service 500s on
+  `/video_analysis/analyze_videos` with a `libGL.so.1` error, reintroduce
+  a small backend-only Dockerfile (still no docker-compose/nginx) so
+  Cloud Run builds from that instead of Buildpacks.

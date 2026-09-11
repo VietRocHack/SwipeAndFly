@@ -1,15 +1,26 @@
 {
   "hosting": {
     "target": "swipeandfly",
-    "public": "public",
+    "public": "frontend/dist",
     "ignore": ["firebase.json", "**/.*"],
     "rewrites": [
       {
-        "source": "**",
+        "source": "/api/**",
         "run": {
           "serviceId": "swipeandfly-server",
           "region": "us-central1"
         }
+      },
+      {
+        "source": "/video_analysis/**",
+        "run": {
+          "serviceId": "swipeandfly-server",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
       }
     ]
   }

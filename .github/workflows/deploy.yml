@@ -22,24 +22,27 @@ jobs:
 
       - uses: google-github-actions/setup-gcloud@v2
 
-      - name: Build image
-        run: |
-          IMAGE="us-central1-docker.pkg.dev/vietrochack-lab/swipeandfly/server:${{ github.sha }}"
-          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
-          gcloud builds submit \
-            --config=cloudbuild.yaml \
-            --substitutions=_IMAGE="$IMAGE",_VITE_MAPS_API_KEY="${{ secrets.VITE_MAPS_API_KEY }}" \
-            --project=vietrochack-lab
-
-      - name: Deploy to Cloud Run
+      - name: Deploy backend to Cloud Run
         run: |
           gcloud run deploy swipeandfly-server \
-            --image="$IMAGE" \
+            --source=backend \
             --region=us-central1 \
             --project=vietrochack-lab \
             --allow-unauthenticated \
             --set-env-vars="GOOGLE_CLOUD_PROJECT=vietrochack-lab" \
             --set-secrets="GEMINI_API_KEY=swipeandfly-gemini-api-key:latest"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Build frontend
+        working-directory: frontend
+        env:
+          VITE_MAPS_API_KEY: ${{ secrets.VITE_MAPS_API_KEY }}
+        run: |
+          npm ci
+          npm run build
 
       - name: Deploy Firebase Hosting
         run: |

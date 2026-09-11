@@ -6,17 +6,13 @@ set -euo pipefail
 
 PROJECT="vietrochack-lab"
 REGION="us-central1"
-IMAGE="us-central1-docker.pkg.dev/${PROJECT}/swipeandfly/server:$(git rev-parse --short HEAD)"
 
 : "${VITE_MAPS_API_KEY:?Set VITE_MAPS_API_KEY before running this script}"
 
-gcloud builds submit \
-  --config=cloudbuild.yaml \
-  --substitutions=_IMAGE="${IMAGE}",_VITE_MAPS_API_KEY="${VITE_MAPS_API_KEY}" \
-  --project="${PROJECT}"
+(cd frontend && npm ci && VITE_MAPS_API_KEY="${VITE_MAPS_API_KEY}" npm run build)
 
 gcloud run deploy swipeandfly-server \
-  --image="${IMAGE}" \
+  --source=backend \
   --region="${REGION}" \
   --project="${PROJECT}" \
   --allow-unauthenticated \

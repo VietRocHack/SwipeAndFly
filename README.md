@@ -1,14 +1,25 @@
 # SwipeAndFly
 
 
-## How to compile this with Docker
+## Local dev
 
-0. Make sure you have Docker engine running
+0. Copy `.env.sample` to `.env` (repo root) and fill in the real values.
+   You'll also need `gcloud auth application-default login` for Firestore
+   access - no AWS credentials needed.
 
-1. Gather your AWS credentials (should be a `credentials` file with `aws_access_key_id` and `aws_secret_access_key`)
+1. Backend (serves the API at `127.0.0.1:8080`):
+   ```bash
+   cd backend
+   python -m venv venv
+   venv/Scripts/activate   # macOS/Linux: source venv/bin/activate
+   pip install -r requirements.txt
+   python main.py
+   ```
 
-2. Rename `.env.sample` to `.env`, and specify everything there (include your own `.aws` path)
-
-3. Run `docker compose build && docker compose up` and you are good
-
-4. Access SwipeAndFly at `localhost:5000` or whatever it outputs in the terminal
+2. Frontend (serves the UI at `127.0.0.1:5173`, proxying `/api` and
+   `/video_analysis` requests to the backend), in a second terminal:
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
