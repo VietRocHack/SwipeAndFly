@@ -81,9 +81,13 @@ def generate_itinerary():
     detected_activities = []
     
     for analysis in video_analysis:
-        summaries.append(analysis["summary"])
-        
-        detected_activities.extend(analysis["activities"])
+        # "groq"'s split-flow analysis returns {summary, activities}; the
+        # default "gemini"/"openai" analysis returns {content, location}
+        # instead (see openai_analysis_json_template.txt) - no activities
+        # list of its own.
+        summaries.append(analysis.get("summary", analysis.get("content", "")))
+
+        detected_activities.extend(analysis.get("activities", []))
     
     print(summaries)
     print(detected_activities)
