@@ -8,7 +8,7 @@ import Typography from "@mui/material/Typography";
 import parse from "autosuggest-highlight/parse";
 import { debounce } from "@mui/material/utils";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { PlaceType } from "../../../utils/types";
+import { MainTextMatchedSubstrings, PlaceType } from "../../../utils/types";
 
 // This key was created specifically for the demo in mui.com.
 // You need to create a new one for your application.
@@ -26,7 +26,33 @@ function loadScript(src: string, position: HTMLElement | null, id: string) {
   position.appendChild(script);
 }
 
-const autocompleteService = { current: null };
+// google.maps.places.AutocompleteService is deprecated in favor of the
+// AutocompleteSuggestion API (https://developers.google.com/maps/documentation/javascript/places-migration-overview).
+// AutocompleteSuggestion.fetchAutocompleteSuggestions() is a static method
+// with no persistent service instance, but it does want a session token
+// reused across one search "session" for billing purposes.
+function toPlaceType(suggestion: any): PlaceType {
+  const prediction = suggestion.placePrediction;
+  const toMatchedSubstrings = (
+    matches?: readonly { startOffset: number; endOffset: number }[]
+  ): MainTextMatchedSubstrings[] =>
+    (matches ?? []).map((match) => ({
+      offset: match.startOffset,
+      length: match.endOffset - match.startOffset,
+    }));
+
+  return {
+    terms: [],
+    description: prediction.text.text,
+    structured_formatting: {
+      main_text: prediction.mainText?.text ?? prediction.text.text,
+      secondary_text: prediction.secondaryText?.text ?? "",
+      main_text_matched_substrings: toMatchedSubstrings(
+        prediction.mainText?.matches
+      ),
+    },
+  };
+}
 
 interface GoogleMapsCitySearchProps {
   location: PlaceType | null;
@@ -77,6 +103,7 @@ export default function GoogleMapsCitySearch({
   const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState<readonly PlaceType[]>([]);
   const loaded = useRef(false);
+  const sessionToken = useRef<any>(null);
 
   if (typeof window !== "undefined" && !loaded.current) {
     if (!document.querySelector("#google-maps")) {
@@ -94,13 +121,24 @@ export default function GoogleMapsCitySearch({
     () =>
       debounce(
         (
-          request: { input: string; types: string[] },
+          request: { input: string },
           callback: (results?: readonly PlaceType[]) => void
         ) => {
-          (autocompleteService.current as any).getPlacePredictions(
-            request,
-            callback
-          );
+          const google = (window as any).google;
+          if (!sessionToken.current) {
+            sessionToken.current = new google.maps.places.AutocompleteSessionToken();
+          }
+          google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions(
+            {
+              input: request.input,
+              // Closest new-API equivalent to the legacy "(cities)" type
+              // collection, per the migration guide's types table.
+              includedPrimaryTypes: ["locality", "administrative_area_level_3"],
+              sessionToken: sessionToken.current,
+            }
+          ).then(({ suggestions }: { suggestions: any[] }) => {
+            callback(suggestions.map(toPlaceType));
+          });
         },
         400
       ),
@@ -110,12 +148,7 @@ export default function GoogleMapsCitySearch({
   useEffect(() => {
     let active = true;
 
-    if (!autocompleteService.current && (window as any).google) {
-      autocompleteService.current = new (
-        window as any
-      ).google.maps.places.AutocompleteService();
-    }
-    if (!autocompleteService.current) {
+    if (!(window as any).google) {
       return undefined;
     }
     if (inputValue === "") {
@@ -124,7 +157,7 @@ export default function GoogleMapsCitySearch({
     }
 
     fetch(
-      { input: inputValue, types: ["(cities)"] },
+      { input: inputValue },
       (results?: readonly PlaceType[]) => {
         if (active) {
           let newOptions: readonly PlaceType[] = [];
@@ -171,6 +204,9 @@ export default function GoogleMapsCitySearch({
         setOptions(newValue ? [newValue, ...options] : options);
         setValue(newValue);
         handleLocationChange(newValue);
+        // Selecting a place ends this autocomplete session - start a new
+        // session token for the next search.
+        sessionToken.current = null;
       }}
       onInputChange={(_event, newInputValue) => {
         setInputValue(newInputValue);
