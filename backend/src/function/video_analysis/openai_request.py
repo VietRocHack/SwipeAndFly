@@ -247,9 +247,11 @@ async def _send_request(
 			return analysis_raw
 
 	except ClientError as e:
+		print(f"ClientError during requesting LLM Provider: {e!r}")
 		logger.error(f"ClientError during requesting LLM Provider: {e}")
 		return {"error": "An error has happened"}
-	
+
 	except Exception as e:
+		print(f"Some happened during requesting LLM Provider: {e!r}")
 		logger.error(f"Some happened during requesting LLM Provider: {e}")
 		return {"error": "An error has happened"}
