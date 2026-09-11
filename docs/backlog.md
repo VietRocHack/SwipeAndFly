@@ -3,19 +3,24 @@
 Known non-blocking issues and cleanup, found while migrating to
 `vietrochack-lab` (2026-09-10). Check items off as they land.
 
-- [ ] `generate_itinerary` raises an uncaught `KeyError` (crashes to a
-  generic 500, instead of a clean error response) if `video_urls` doesn't
-  resolve to at least one valid, analyzable video - the per-video error
-  dict it gets back (`{"error": ...}`) doesn't have the `"summary"`/
-  `"activities"` keys the code assumes every entry has.
-  (`backend/src/routes/itinerary_routes.py`) **Same root cause as the
-  bug fixed 2026-09-10 in `analyze_from_url`** (`analyze_videos.py`):
-  the openai/gemini analysis template only ever returns
-  `{content, location}`, never `activities` - `itinerary_routes.py:86`
-  (`analysis["activities"]`) will `KeyError` on every *successful*
-  openai/gemini analysis too, not just failed ones. Worth fixing both
-  call sites together next time someone's in this code - see
-  `docs/progress/20260910.md`.
+- [x] `generate_itinerary` raised an uncaught `KeyError` on
+  `analysis["summary"]`/`analysis["activities"]` for every real request
+  using the default "gemini" provider (that analysis shape is
+  `{content, location}`, not `{summary, activities}` - see
+  `openai_analysis_json_template.txt`; only "groq"'s split-flow produces
+  the latter) - the actual core "swipe videos -> get an itinerary" flow
+  the frontend uses, found live-broken by Vuong on
+  swipeandfly.vietrochack.com 2026-09-10, same root cause as the
+  `analyze_from_url` bug fixed earlier the same day. Fixed with
+  `.get()`-with-fallback in both places. See `docs/progress/20260910.md`.
+- [ ] `get_itinerary` (`backend/src/routes/itinerary_routes.py:37-39`)
+  will raise an uncaught `AttributeError` (`'NoneType' object has no
+  attribute 'split'`) if the `fields` query param is omitted entirely -
+  `request.args.get('fields')` returns `None`, not `""`, so the
+  `if fields == "":` check never catches the missing-param case before
+  `fields.split(',')` runs. Found while spot-checking the itinerary flow
+  2026-09-10; not yet confirmed whether the frontend ever calls this
+  route without `fields`.
 - [ ] `video_analysis_call()` and the commented-out `suggest_videos_http`
   route in `backend/src/routes/video_analysis_routes.py` look dead -
   worth confirming and removing if so.
