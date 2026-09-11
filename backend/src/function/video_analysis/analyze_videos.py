@@ -151,7 +151,10 @@ async def analyze_from_url(
 	if result == True:
 		logger.info(f"Finished analyzing { video_url }, result: { data }")
 		clean_url = vid_obj.get_clean_url()
-		for activity in data["activities"]:
+		# Only the "groq" version's split flow produces a per-activity list;
+		# "openai"/"gemini" return a single {content, location} block (see
+		# openai_analysis_json_template.txt), so there's nothing to annotate.
+		for activity in data.get("activities", []):
 			activity["video_url"] = clean_url
 		# True if result succeeds
 		data["video_url"] = clean_url
