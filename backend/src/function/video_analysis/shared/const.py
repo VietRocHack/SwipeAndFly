@@ -14,12 +14,19 @@ with open("./src/function/video_analysis/prompts/groq_analysis_json_template.txt
 with open("./src/function/video_analysis/prompts/groq_activity_json_template.txt") as f:
 	groq_activity_list_template = f.read()
 
+def _get_key(name: str) -> str:
+	# Secret Manager / .env values sometimes carry a trailing newline (e.g.
+	# from `echo "key" | gcloud secrets versions add`), which corrupts the
+	# Authorization header and makes aiohttp reject the request outright.
+	value = os.environ.get(name)
+	return value.strip() if value else value
+
 version_configs = {
 	"openai": {
 		"base_url": "https://api.openai.com/v1",
 		"text_model": "gpt-4o",
 		"vision_model": "gpt-4o",
-		"api_key": os.environ.get("OPENAI_API_KEY"),
+		"api_key": _get_key("OPENAI_API_KEY"),
         "analysis_template": openai_analysis_template,
 	},
 	"gemini": {
@@ -27,14 +34,14 @@ version_configs = {
 		"base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
 		"text_model": "gemini-3.5-flash-lite",
 		"vision_model": "gemini-3.5-flash-lite",
-		"api_key": os.environ.get("GEMINI_API_KEY"),
+		"api_key": _get_key("GEMINI_API_KEY"),
         "analysis_template": openai_analysis_template,
 	},
 	"groq": {
 		"base_url": "https://api.groq.com/openai/v1",
 		"text_model": "llama-3.3-70b-versatile",
 		"vision_model": "llama-3.2-11b-vision-preview",
-		"api_key": os.environ.get("GROQ_API_KEY"),
+		"api_key": _get_key("GROQ_API_KEY"),
         "analysis_template": groq_analysis_template,
         "activity_list_template": groq_activity_list_template
 	}
