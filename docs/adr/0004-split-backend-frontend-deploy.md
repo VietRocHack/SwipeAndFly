@@ -42,18 +42,21 @@ None of that is load-bearing once `swipeandfly.world` is confirmed dead
 
 ## Consequences
 - No Docker anywhere in this repo, dev or prod.
-- **Known risk, not yet verified by a real deploy**: the video-analysis
-  feature imports `cv2` (`opencv-python-headless`), which needs the
-  system packages `libgl1`/`libglib2.0-0` just to import (a real bug hit
-  and fixed in the original `Dockerfile` - see
-  `docs/progress/20260909.md`). Google Cloud Buildpacks has no supported
-  way to install arbitrary apt packages the way a Dockerfile's `RUN
-  apt-get install` can, so this may break video analysis in production.
-  If the deployed service 500s on video analysis with a `libGL.so.1`
-  import error (check `gcloud run services logs read swipeandfly-server`),
-  the fallback is reintroducing a small backend-only Dockerfile - still no
-  docker-compose/nginx/frontend-baking - so Cloud Run builds from that
-  instead of Buildpacks. Tracked in `docs/backlog.md`.
+- **Known risk, since verified against a real deploy (2026-09-10):** the
+  video-analysis feature imports `cv2` (`opencv-python-headless`), which
+  needs the system packages `libgl1`/`libglib2.0-0` just to import (a
+  real bug hit and fixed in the original `Dockerfile` - see
+  `docs/progress/20260909.md`), and Google Cloud Buildpacks has no
+  supported way to install arbitrary apt packages the way a Dockerfile's
+  `RUN apt-get install` can. **This turned out not to matter** - both
+  `cv2.VideoCapture` and `cv2.imencode` work fine in the Buildpacks-built
+  image without those packages explicitly installed. Getting to a
+  genuinely successful live test still required fixing two unrelated
+  pre-existing bugs (a corrupted Secret Manager value, and a missing-key
+  crash in the analysis post-processing) - see `docs/progress/20260910.md`
+  for the full chain. The backend-only-Dockerfile fallback described here
+  is no longer needed but is left below for reference in case a future
+  Buildpacks builder regresses this.
 - Two deploy steps (backend, then hosting) instead of one - a few more
   seconds of deploy time, no meaningful downside.
 - `firebase.json`'s old `"public": "public"` placeholder (never actually
