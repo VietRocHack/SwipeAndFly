@@ -141,6 +141,9 @@ async def analyze_from_url(
 				)
 		except Exception:
 			use_video = True
+			# Also print to stdout: Cloud Run only captures stdout/stderr, not
+			# the file-based logger's output.
+			print(f"Unable to download video with { video_url } with exception { traceback.format_exc() }")
 			logger.info(f"Unable to download video with { video_url } with exception { traceback.format_exc() }")
 			return False, {"error": "Something happens during downloading video."}
 
