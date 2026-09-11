@@ -23,7 +23,21 @@ Known non-blocking issues and cleanup, found while migrating to
   route without `fields`.
 - [ ] `video_analysis_call()` and the commented-out `suggest_videos_http`
   route in `backend/src/routes/video_analysis_routes.py` look dead -
-  worth confirming and removing if so.
+  worth confirming and removing if so. **Confirmed dead 2026-09-10** via
+  live browser testing: `frontend/src/components/VideoSelector/VideoSelector.tsx:98`
+  calls `api/video_analysis/suggest_videos`, which 404s (that route is
+  commented out server-side) on every "get some inspiration" attempt.
+  Non-blocking - the frontend just falls through - but the "inspiration"
+  feature has presumably never worked in this deploy.
+- [ ] The AI-generated itinerary's `inspiredBy.video_url` is sometimes a
+  hallucinated, non-existent TikTok URL rather than one of the actual
+  analyzed videos (e.g. `@mamastoo/video/1234567890` for a video
+  submitted from a different account entirely) - surfaces as "Broken URL
+  link" on the trip page (`TimelineActivity.tsx:32`, when
+  `cleanTikTokVideoURL()` can't parse it). Found 2026-09-10 while live-
+  testing the itinerary flow; likely a prompt issue in
+  `itinerary_system_prompt.txt` / how `suggest_activities()` passes real
+  video URLs through - not investigated further.
 - [ ] `backend/README.md` is stale leftover from a differently-named
   predecessor project (mentions "TripPlanner-itinerary-backend", an
   OpenAI key requirement, and an `.aws` folder that no longer applies),

@@ -6,7 +6,10 @@ All under GCP project `vietrochack-lab`:
 
 - APIs enabled: `run`, `cloudbuild`, `artifactregistry`, `firestore`,
   `secretmanager`, `billingbudgets`, `maps-backend`, `places-backend`,
-  `generativelanguage`
+  `generativelanguage`, `places` (2026-09-10, added when the frontend
+  migrated off the deprecated `AutocompleteService` to
+  `AutocompleteSuggestion`, which calls the separate "Places API (New)"
+  rather than the legacy `places-backend`)
 - Firestore database `swipeandfly` (native mode, `us-central1`)
 - Artifact Registry repo `swipeandfly` (`us-central1`), with a cleanup
   policy (keep last 3 tagged versions, delete untagged images after 1 day,
@@ -31,11 +34,13 @@ All under GCP project `vietrochack-lab`:
 - API keys (both under `vietrochack-lab`):
   - `swipeandfly-gemini` - restricted to `generativelanguage.googleapis.com`,
     value lives only in Secret Manager
-  - `swipeandfly-maps-browser` - restricted to `maps-backend`/`places-backend`
-    and to the `swipeandfly.vietrochack.com` / `vietrochack-swipeandfly.web.app`
-    / `vietrochack-swipeandfly.firebaseapp.com` referrers; this one is
-    client-exposed by design (ships in the built JS bundle), the referrer
-    restriction is the actual security boundary, not secrecy
+  - `swipeandfly-maps-browser` - restricted to `maps-backend`/`places-backend`/
+    `places` (the last one added 2026-09-10 alongside the `places` API
+    enablement above) and to the `swipeandfly.vietrochack.com` /
+    `vietrochack-swipeandfly.web.app` / `vietrochack-swipeandfly.firebaseapp.com`
+    referrers; this one is client-exposed by design (ships in the built JS
+    bundle), the referrer restriction is the actual security boundary, not
+    secrecy
 - Workload Identity Federation: provider `swipeandfly` added to the shared
   `github` pool (scoped to `VietRocHack/SwipeAndFly` via
   `attribute-condition`), bound to service account
